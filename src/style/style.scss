@@ -1,0 +1,54 @@
+// 全局样式
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  width: 100vw !important;
+  height: 100vh;
+  overflow: hidden;
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Microsoft YaHei", Arial, sans-serif;
+}
+.cesium-performanceDisplay-defaultContainer {
+  top: 80px !important;
+  right: 20px !important;
+  position: absolute;
+  z-index: 9;
+  width: 80px;
+}
+
+ul,
+li {
+  list-style: none;
+}
+a:focus,
+a:active {
+  outline: none;
+}
+
+a,
+a:focus,
+a:hover {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+}
+.ellipsis {
+  overflow: hidden; /* 确保内容超出容器时会被隐藏 */
+  white-space: nowrap; /* 确保文本在一行内显示，避免换行 */
+  text-overflow: ellipsis; /* 用省略号表示被截断的文本 */
+}
+
+.ellipsis-multiline {
+  //超出两行省略号
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  -webkit-line-clamp: 2; //显示几行
+}
