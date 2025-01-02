@@ -7,126 +7,45 @@
             <a-button type="primary" @click="prevImage">上一张</a-button>
             <a-button type="primary" @click="nextImage">下一张</a-button> -->
         </a-space>
-        <canvas ref="canvasDom" class="canvas">
-        </canvas>
+        <!-- <canvas ref="canvasDom" class="canvas" id="canvasDom">
+        </canvas> -->
+        <div class="canvasDom" id="canvasDom"></div>
     </div>
 
-
 </template>
-
 
 <script setup>
     import { ref, onMounted, onUnmounted } from 'vue';
     import initThree from "@/utils/three/initThree.js";
     // three
     import * as THREE from "three";
-    import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-    import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { clearScene, disposeChild } from "@/utils/three/clearScene.js";
 
-    import { Pathfinding, PathfindingHelper } from 'three-pathfinding';
 
-    let canvasDom = ref(null);
 
-    let baseThree, controls;
+    let baseThree;
 
     let group = ref(null);
     // 创建一个组并添加多个立方体
     group.value = new THREE.Group();
 
-    let objMesh;
     // 加载点云模型
     // let model = ref('/models/pcd/test.pcd')
-    let model = ref('/models/pcd/pcl_logo.pcd')
-    // let model = ref('/models/WoodTower/Wood_Tower.glb')
-    // 加载点云
-    function loadModel(model, scaleX, scaleY, scaleZ, rotationX, rotationY, rotationZ, positionX, positionY, positionZ) {
-        const loader = new PCDLoader();
-        // const loader = new GLTFLoader();
-        loader.load(model, function (obj) {
-            obj.geometry.center();
+    let pcdModel = ref('/models/pcd/pcl_logo.pcd')
+    let gltfModel = ref('/models/DJ.glb')
 
-            obj.name = 'pcd';
-            obj.scale.set(scaleX, scaleY, scaleZ);
-            obj.rotation.set(rotationX, rotationY, rotationZ);
-            obj.position.set(positionX, positionY, positionZ);
-
-            group.value.add(obj);
-            baseThree.scene.add(obj);
-            baseThree.scene.add(group.value);
-
-
-        });
-    }
-
-    let playerPosition = new THREE.Vector3(10, 10, 10);
-    let targetPosition = new THREE.Vector3(5, 8, 7);
-    const pathfinding = new Pathfinding();
-    const helper = new PathfindingHelper();
-
-    function loadGltfModel(model, scaleX, scaleY, scaleZ, rotationX, rotationY, rotationZ, positionX, positionY, positionZ) {
-        const loader = new GLTFLoader();
-        loader.load(model, function (obj) {
-
-            obj.scene.traverse((node) => {
-                if (node.isMesh) {
-                    objMesh = node
-                    console.log(`output->@@@666objMesh`, objMesh)
-                    // Create level.
-                    const ZONE = 'level1';
-                    pathfinding.setZoneData(ZONE, Pathfinding.createZone(objMesh.geometry));
-
-                    // Find path from A to B.
-                    const groupID = pathfinding.getGroup(ZONE, playerPosition);
-                    const path = pathfinding.findPath(playerPosition, targetPosition, ZONE, groupID);
-
-                };
-
-            });
-
-
-            obj.scene.name = 'pcd';
-            obj.scene.scale.set(scaleX, scaleY, scaleZ);
-            obj.scene.rotation.set(rotationX, rotationY, rotationZ);
-            obj.scene.position.set(positionX, positionY, positionZ);
-
-            group.value.add(obj.scene);
-            baseThree.scene.add(obj.scene);
-            baseThree.scene.add(group.value);
-
-
-        });
-    }
 
 
 
 
 
     onMounted(() => {
-        console.log(`output->canvasDom.value`, canvasDom.value)
-        baseThree = new initThree(canvasDom.value);
-        baseThree.camera.position.set(10, 10, 10);
-        baseThree.initAxesHelper();
-        baseThree.addAmbientLight()
-        baseThree.addDirLight()
-
-        baseThree.scene.add(helper);
-        loadModel(model.value, 1, 1, 1, -Math.PI / 2, 0, 0, 1, 1, 1);
-        // loadGltfModel(model.value, 1, 1, 1, 0, 0, 0, 1, 1, 1);
-
-
-
-
-        controls = new OrbitControls(baseThree.camera, baseThree.renderer.domElement);
-        controls.enableDamping = true//开启阻尼,让动画更平滑
-        animate();
-
-
-
-        window.addEventListener("resize", resize);
-
+        baseThree = new initThree('#canvasDom');
+        baseThree.init()
+        // baseThree.loadPCDModel(pcdModel.value, 1, 1, 1, Math.PI, 0, 0, 0, 0, 0);
+        baseThree.loadGLTFModel(gltfModel.value, 10, 10, 10, 0, 0, 0, 0, 0, 0);
     });
+
 
     let i = 0
     function animate() {
@@ -134,15 +53,9 @@
         requestAnimationFrame(animate);
         // console.log(`output->i@@@`, i)
         baseThree.update();
-        controls.update();
+        baseThree.controls.update();
     }
 
-
-    function resize() {
-        console.log(`output->窗口变化`, canvasDom.value.offsetWidth)
-        // let canvasDom = ref(null);
-        baseThree.resize(canvasDom.value)
-    }
 
 
     // 销毁
@@ -173,10 +86,10 @@
         left: 10px;
     }
 
-    .canvas {
+    .canvasDom {
         width: 100%;
         height: 100%;
-        border: 5px solid #000;
+        // border: 5px solid #000;
     }
 
 </style>
