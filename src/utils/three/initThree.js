@@ -8,21 +8,19 @@ export default class initThree {
     this.camera = null;
     this.scene = null;
     this.container = document.querySelector(domSelector);
+    this.renderer = null;
+    this.controls = null;
+    this.renderAnimation = null;
+    // 初始尺寸
+    const { width, height } = this.container.getBoundingClientRect();
+    this.width = width;
+    this.height = height;
 
 
+    // 屏幕自适应
+    window.addEventListener("resize", this.onResize.bind(this));
 
-
-    //屏幕自适应
-    window.addEventListener("resize", () => {
-      const { width, height } = this.container.getBoundingClientRect();
-      // console.log(`output->offsetHeight###`, offsetHeight)
-      //调整屏幕大小
-      this.camera.aspect = width / height //摄像机宽高比例
-      this.camera.updateProjectionMatrix() //相机更新矩阵，将3d内容投射到2d面上转换
-      this.renderer.setSize(width, height)
-      // this.effectComposer.setSize(offsetWidth * 2, offsetHeight * 2)
-      // this.glowComposer.setSize(offsetWidth, offsetHeight)
-    });
+    this.init();
 
   }
 
@@ -51,27 +49,20 @@ export default class initThree {
 
   // 创建相机
   initCamera(position = { x: 10, y: 10, z: 10 }) {
-    const { width, height } = this.container.getBoundingClientRect();
-
-    this.camera = new THREE.PerspectiveCamera(75, width / height, 0.01, 2000);
+    this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.01, 2000);
     this.camera.position.set(position.x, position.y, position.z);
-    this.camera.updateProjectionMatrix();
-    this.scene.add(this.camera)
+    this.scene.add(this.camera);
   }
 
   // 创建渲染器
   initRender() {
-    const { width, height } = this.container.getBoundingClientRect();
-
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true }) //设置抗锯齿
-    //设置屏幕像素比
-    this.renderer.setPixelRatio(window.devicePixelRatio)
-    //渲染的尺寸大小
-    this.renderer.setSize(width, height)
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setSize(this.width, this.height);
     this.renderer.setClearColor('#add8e6');
     this.container.appendChild(this.renderer.domElement);
-
   }
+
 
 
   // 更新渲染器
@@ -79,11 +70,24 @@ export default class initThree {
     this.renderer.render(this.scene, this.camera);
   }
 
+  // 动画更新
   sceneAnimation() {
-    this.renderAnimation = requestAnimationFrame(() => this.sceneAnimation());
-    this.update()
+    console.log(`output->111`)
+    this.renderAnimation = requestAnimationFrame(this.sceneAnimation.bind(this));
+    this.update();
     this.controls.update();
-    return this.renderAnimation
+  }
+
+  // 屏幕尺寸变化时更新
+  onResize() {
+    const { width, height } = this.container.getBoundingClientRect();
+    if (width !== this.width || height !== this.height) {
+      this.width = width;
+      this.height = height;
+      this.camera.aspect = width / height;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(width, height);
+    }
   }
 
   //添加环境光
@@ -113,21 +117,20 @@ export default class initThree {
   }
 
   // 导入PCD文件
-  loadPCDModel(pcdFile, scaleX, scaleY, scaleZ, rotationX, rotationY, rotationZ, positionX, positionY, positionZ) {
+  loadPCDModel(pcdFile, scale, rotation, position) {
     const pcdLoader = new PCDLoader();
     pcdLoader.load(pcdFile, (obj) => {
       obj.geometry.center();
       obj.name = 'pcd';
-      obj.scale.set(scaleX, scaleY, scaleZ);
-      obj.rotation.set(rotationX, rotationY, rotationZ);
-
-      obj.position.set(positionX, positionY, positionZ);
+      obj.scale.set(scale.x, scale.y, scale.z);
+      obj.rotation.set(rotation.x, rotation.y, rotation.z);
+      obj.position.set(position.x, position.y, position.z);
       this.scene.add(obj);
     });
   }
 
   // 导入GLTF文件:模型路径，缩放比例，旋转角度，位置;加载draco压缩文件
-  loadGLTFModel(gltfModel, scaleX, scaleY, scaleZ, rotationX, rotationY, rotationZ, positionX, positionY, positionZ) {
+  loadGLTFModel(gltfModel, scale, rotation, position) {
     const gltfLoader = new GLTFLoader();
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath(`draco/gltf/`);
@@ -135,15 +138,27 @@ export default class initThree {
     dracoLoader.preload();
     gltfLoader.setDRACOLoader(dracoLoader);
     gltfLoader.load(gltfModel, (obj) => {
-      obj.scene.scale.set(scaleX, scaleY, scaleZ);
-      obj.scene.rotation.set(rotationX, rotationY, rotationZ);
-      obj.scene.position.set(positionX, positionY, positionZ);
+
+
+      obj.scene.scale.set(scale.x, scale.y, scale.z);
+      obj.scene.rotation.set(rotation.x, rotation.y, rotation.z);
+      obj.scene.position.set(position.x, position.y, position.z);
       this.scene.add(obj.scene);
     });
   }
 
 
-
-
+  // 释放资源
+  dispose() {
+    if (this.renderAnimation) {
+      cancelAnimationFrame(this.renderAnimation);
+    }
+    if (this.renderer) {
+      this.renderer.dispose();
+    }
+    if (this.camera) {
+      this.camera.clear();
+    }
+  }
 
 }

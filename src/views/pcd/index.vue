@@ -1,16 +1,13 @@
 <template>
     <div class="canvasbox">
-        <a-space>
-            <!-- <a-button type="primary" @click="togglePencilMode">按钮</a-button>
-            <a-button type="primary" @click="saveCanvas">保存</a-button>
-            <a-button type="primary" @click="clearCanvas">清除</a-button>
-            <a-button type="primary" @click="prevImage">上一张</a-button>
-            <a-button type="primary" @click="nextImage">下一张</a-button> -->
-        </a-space>
-        <!-- <canvas ref="canvasDom" class="canvas" id="canvasDom">
-        </canvas> -->
         <div class="canvasDom" id="canvasDom"></div>
+        <!-- <a-space>
+            <a-button type="primary" danger @click="clearObjects">清除</a-button>
+        </a-space> -->
     </div>
+
+
+
 
 </template>
 
@@ -24,49 +21,46 @@
 
 
     let baseThree;
-
-    let group = ref(null);
-    // 创建一个组并添加多个立方体
-    group.value = new THREE.Group();
-
     // 加载点云模型
     // let model = ref('/models/pcd/test.pcd')
     let pcdModel = ref('/models/pcd/pcl_logo.pcd')
     let gltfModel = ref('/models/DJ.glb')
 
 
-
-
-
-
     onMounted(() => {
         baseThree = new initThree('#canvasDom');
-        baseThree.init()
-        // baseThree.loadPCDModel(pcdModel.value, 1, 1, 1, Math.PI, 0, 0, 0, 0, 0);
-        baseThree.loadGLTFModel(gltfModel.value, 10, 10, 10, 0, 0, 0, 0, 0, 0);
+        // baseThree.init()
+        // 加载 PCD 模型
+        baseThree.loadPCDModel(pcdModel.value,
+            { x: 10, y: 10, z: 10 },  // scale
+            { x: Math.PI, y: 0, z: 0 },  // rotation
+            { x: 0, y: 0, z: 0 }   // position
+        );
     });
 
 
-    let i = 0
-    function animate() {
-        i++
-        requestAnimationFrame(animate);
-        // console.log(`output->i@@@`, i)
-        baseThree.update();
-        baseThree.controls.update();
-    }
+
+    // // 清除场景中的模型
+    // const clearObjects = () => {
+    //     if (baseThree) {
+    //         // 通过 baseThree 获取场景的子对象，并清除
+    //         const myObjects = [...baseThree.scene.children]; // 获取场景中的所有子对象
+    //         clearScene(myObjects, baseThree.scene);
+    //         console.log('Scene cleared!');
+    //     }
+    // };
 
 
 
     // 销毁
     onUnmounted(() => {
-        if (baseThree.scene) {
-            console.log(`output->group.value`, group.value)
-            clearScene([group.value], baseThree.scene);
-        }
-        if (baseThree.renderer) {
 
-            baseThree.renderer.dispose();  // 清理 WebGL 渲染器
+        if (baseThree) {
+            // clearScene(baseThree.scene.children, baseThree.scene);  // 清除场景中的所有对象
+            clearScene(baseThree.scene.children, baseThree.scene, baseThree.camera, baseThree.renderer);
+            baseThree.dispose();
+            console.log(`output->baseThree`, baseThree)
+            console.log('Scene cleared!');
         }
     })
 </script>

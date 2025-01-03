@@ -7,6 +7,12 @@ const routes = [
     meta: { title: "pcd模型室内导航" },
     component: () => import("../views/pcd/index.vue"),
   },
+  {
+    path: "/test",
+    name: "test",
+    meta: { title: "测试" },
+    component: () => import("../views/test/index.vue"),
+  },
 ];
 
 const router = createRouter({
