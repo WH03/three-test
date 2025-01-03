@@ -58,7 +58,6 @@
         if (baseThree) {
             // clearScene(baseThree.scene.children, baseThree.scene);  // 清除场景中的所有对象
             clearScene(baseThree.scene.children, baseThree.scene, baseThree.camera, baseThree.renderer);
-            baseThree.dispose();
             console.log(`output->baseThree`, baseThree)
             console.log('Scene cleared!');
         }
