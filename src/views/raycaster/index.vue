@@ -13,43 +13,28 @@
 
 <script setup>
     import { ref, onMounted, onUnmounted } from 'vue';
-    import initThree from "@/utils/three/initThree.js";
-    // three
     import * as THREE from "three";
+    import initThree from "@/utils/three/initThree.js";
     import { clearScene, disposeChild } from "@/utils/three/clearScene.js";
 
 
 
     let baseThree;
-    // 加载点云模型
-    // let model = ref('/models/pcd/test.pcd')
-    let pcdModel = ref('/models/pcd/pcl_logo.pcd')
-    let gltfModel = ref('/models/DJ.glb')
 
 
     onMounted(() => {
         baseThree = new initThree('#canvasDom');
-        // baseThree.init()
-        // 加载 PCD 模型
-        baseThree.loadPCDModel(pcdModel.value,
-            { x: 10, y: 10, z: 10 },  // scale
-            { x: Math.PI, y: 0, z: 0 },  // rotation
-            { x: 0, y: 0, z: 0 }   // position
-        );
+        baseThree.loadCubeModel('#ccc', 2, 2, 2, { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { x: -5, y: 0, z: 0 });
+
+        baseThree.loadCubeModel('#ccc', 3, 3, 3, { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 });
+        // baseThree.initRaycaster('mousemove', baseThree.scene.children);
         baseThree.initRaycaster('click', baseThree.scene.children);
-
     });
-
-
-
 
     // 销毁
     onUnmounted(() => {
         if (baseThree) {
-            // clearScene(baseThree.scene.children, baseThree.scene);  // 清除场景中的所有对象
             clearScene(baseThree.scene.children, baseThree.scene, baseThree.camera, baseThree.renderer);
-            console.log(`output->baseThree`, baseThree)
-            console.log('Scene cleared!');
         }
     })
 </script>
@@ -72,7 +57,6 @@
     .canvasDom {
         width: 100%;
         height: 100%;
-        // border: 5px solid #000;
     }
 
 </style>

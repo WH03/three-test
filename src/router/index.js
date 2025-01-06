@@ -13,6 +13,14 @@ const routes = [
     meta: { title: "测试" },
     component: () => import("../views/test/index.vue"),
   },
+  {
+    path: "/raycaster",
+    name: "raycaster",
+    meta: { title: "鼠标交互" },
+    component: () => import("../views/raycaster/index.vue"),
+  },
+
+  
 ];
 
 const router = createRouter({

@@ -20,6 +20,8 @@ export default class initThree {
     // 屏幕自适应
     window.addEventListener("resize", this.onResize.bind(this));
 
+    // document.addEventListener('pointermove', onPointerMove);
+
     this.init();
 
   }
@@ -72,7 +74,7 @@ export default class initThree {
 
   // 动画更新
   sceneAnimation() {
-    console.log(`output->111`)
+    // console.log(`output->111`)
     this.renderAnimation = requestAnimationFrame(this.sceneAnimation.bind(this));
     this.update();
     this.controls.update();
@@ -147,6 +149,62 @@ export default class initThree {
     });
   }
 
+  // 导入精灵模型
+  loadSpriteModel(color = '#69f', scale, rotation, position) {
+    let sprite = new THREE.Sprite(new THREE.SpriteMaterial({ color: color }));
+    sprite.scale.set(scale.x, scale.y, scale.z);
+    sprite.rotation.set(rotation.x, rotation.y, rotation.z);
+    sprite.position.set(position.x, position.y, position.z);
+    this.scene.add(sprite);
+    return sprite
+  }
+  // 加载基础立方体
+  loadCubeModel(color = '#69f', width, height, depth, scale, rotation, position) {
+    let geometry = new THREE.BoxGeometry(width, height, depth);
+    let material = new THREE.MeshBasicMaterial({ color: color });
+    let mesh = new THREE.Mesh(geometry, material);
+    mesh.scale.set(scale.x, scale.y, scale.z);
+    mesh.rotation.set(rotation.x, rotation.y, rotation.z);
+    mesh.position.set(position.x, position.y, position.z);
+    this.scene.add(mesh);
+    return mesh
+  }
+
+
+
+  // 初始化射线
+  initRaycaster(eventName, models) {
+
+    this.raycaster = new THREE.Raycaster();
+    this.container.addEventListener(eventName, this.rayEventFn.bind(this, models), false);
+  }
+
+  rayEventFn(models, event) {
+    const { width, height, top, left } = this.container.getBoundingClientRect();
+    const mouse = {
+      x: ((event.clientX - left) / width) * 2 - 1,
+      y: -((event.clientY - top) / height) * 2 + 1,
+    };
+
+    this.raycaster.setFromCamera(mouse, this.camera);
+    // const intersects = this.raycaster.intersectObjects(models, true)[0];
+    // intersects.object.material.color.set('#f00');
+
+
+    const intersects = this.raycaster.intersectObjects(models, true);
+    if (intersects.length > 0) {
+      const selectedObject = intersects[0].object;
+      // 更新当前被点击的模型，并改变颜色
+      selectedObject.material.color.set('#69f'); // 设置新的颜色
+
+    }
+
+
+
+
+  }
+
+
 
   // 释放资源
   dispose() {
@@ -160,5 +218,17 @@ export default class initThree {
       this.camera.clear();
     }
   }
+
+  // 点击事件
+  // initRaycaster(callback, models = this.scene.children, eventName = "click") {
+  //   this.raycaster = new THREE.Raycaster();
+  //   this.rayFn = this.rayEventFn.bind(this, models, callback);
+  //   // 绑定点击事件
+  //   this.el.addEventListener(eventName, this.rayFn);
+  // }
+
+
+
+
 
 }
