@@ -218,7 +218,9 @@ export default class initThree {
     if (intersects.length > 0) {// 如果射线与模型相交
       if (this.intersected != intersects[0].object) {// 如果射线与上一次相交的模型不同
         // 如果上一次相交的模型存在
-        if (this.intersected) this.intersected.material.color.setHex(this.intersected.currentHex);
+        if (this.intersected) {
+          this.intersected.material.color.setHex(this.intersected.currentHex);
+        }
         // 记录当前相交的模型
         this.intersected = intersects[0].object;
         // 记录当前相交的模型的颜色
@@ -229,17 +231,12 @@ export default class initThree {
       }
     } else {// 如果射线与模型不相交
       // 如果上一次相交的模型存在, 将上一次相交的模型的颜色设置为之前记录的颜色
-      if (this.intersected) this.intersected.material.color.setHex(this.intersected.currentHex);
+      if (this.intersected) {
+        this.intersected.material.color.setHex(this.intersected.currentHex);
+      }
       // 将上一次相交的模型设置为 null
       this.intersected = null;
     }
-
-
-
-
-
-
-
   }
 
 
