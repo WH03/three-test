@@ -24,11 +24,11 @@
 
     onMounted(() => {
         baseThree = new initThree('#canvasDom');
-        baseThree.loadCubeModel('#ccc', 2, 2, 2, { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { x: -5, y: 0, z: 0 });
+        baseThree.loadCubeModel(0xffff00, 2, 2, 2, { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { x: -5, y: 0, z: 0 });
 
-        baseThree.loadCubeModel('#ccc', 3, 3, 3, { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 });
-        // baseThree.initRaycaster('mousemove', baseThree.scene.children);
-        baseThree.initRaycaster('click', baseThree.scene.children);
+        baseThree.loadCubeModel(0xffff00, 3, 3, 3, { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 });
+        baseThree.initRaycaster('mousemove', baseThree.scene.children);
+        // baseThree.initRaycaster('click', baseThree.scene.children);
     });
 
     // 销毁

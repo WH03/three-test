@@ -11,6 +11,7 @@ export default class initThree {
     this.renderer = null;
     this.controls = null;
     this.renderAnimation = null;
+    this.intersected = null
     // 初始尺寸
     const { width, height } = this.container.getBoundingClientRect();
     this.width = width;
@@ -150,7 +151,7 @@ export default class initThree {
   }
 
   // 导入精灵模型
-  loadSpriteModel(color = '#69f', scale, rotation, position) {
+  loadSpriteModel(color, scale, rotation, position) {
     let sprite = new THREE.Sprite(new THREE.SpriteMaterial({ color: color }));
     sprite.scale.set(scale.x, scale.y, scale.z);
     sprite.rotation.set(rotation.x, rotation.y, rotation.z);
@@ -158,10 +159,14 @@ export default class initThree {
     this.scene.add(sprite);
     return sprite
   }
+
+
   // 加载基础立方体
-  loadCubeModel(color = '#69f', width, height, depth, scale, rotation, position) {
+  loadCubeModel(color, width, height, depth, scale, rotation, position) {
     let geometry = new THREE.BoxGeometry(width, height, depth);
-    let material = new THREE.MeshBasicMaterial({ color: color });
+    // let material = new THREE.MeshBasicMaterial({ color: color });
+    let material = new THREE.MeshLambertMaterial({ color: color });
+
     let mesh = new THREE.Mesh(geometry, material);
     mesh.scale.set(scale.x, scale.y, scale.z);
     mesh.rotation.set(rotation.x, rotation.y, rotation.z);
@@ -172,37 +177,76 @@ export default class initThree {
 
 
 
-  // 初始化射线
+  // 鼠标事件
   initRaycaster(eventName, models) {
-
     this.raycaster = new THREE.Raycaster();
     this.container.addEventListener(eventName, this.rayEventFn.bind(this, models), false);
   }
 
+  // rayEventFn(models, event) {
+  //   let selectedObjectColor, selectedObject, originalColor;//记录当前选择的颜色
+  //   const { width, height, top, left } = this.container.getBoundingClientRect();
+  //   const mouse = {
+  //     x: ((event.clientX - left) / width) * 2 - 1,
+  //     y: -((event.clientY - top) / height) * 2 + 1,
+  //   };
+
+  //   this.raycaster.setFromCamera(mouse, this.camera);
+  //   let intersects = this.raycaster.intersectObjects(models, true);
+  //   if (intersects.length > 0) {
+  //     selectedObject = intersects[0].object;
+  //     selectedObjectColor = selectedObject.material.color.getHexString();//记录当前选择的颜色
+  //     // 更新当前被点击的模型，并改变颜色
+  //     selectedObject.material.color.set('#69f'); // 设置新的颜色
+  //   } else {//没有选中任何模型
+  //     console.log(`output->没有选中任何模型selectedObjectColor：`, selectedObjectColor)
+  //   }
+
+  // }
+
+
   rayEventFn(models, event) {
+    console.log(`output->执行了该函数`)
     const { width, height, top, left } = this.container.getBoundingClientRect();
     const mouse = {
       x: ((event.clientX - left) / width) * 2 - 1,
       y: -((event.clientY - top) / height) * 2 + 1,
     };
+    this.raycaster.setFromCamera(mouse, this.camera);// 设置射线
 
-    this.raycaster.setFromCamera(mouse, this.camera);
-    // const intersects = this.raycaster.intersectObjects(models, true)[0];
-    // intersects.object.material.color.set('#f00');
+    let intersects = this.raycaster.intersectObjects(models, true);// 射线与模型相交
 
+    if (intersects.length > 0) {// 如果射线与模型相交
+      if (this.intersected != intersects[0].object) {// 如果射线与上一次相交的模型不同
+        // 如果上一次相交的模型存在
+        if (this.intersected) this.intersected.material.color.setHex(this.intersected.currentHex);
+        // 记录当前相交的模型
+        this.intersected = intersects[0].object;
+        // 记录当前相交的模型的颜色
+        this.intersected.currentHex = this.intersected.material.color.getHex();
+        // 将当前相交的模型的颜色设置为红色
+        this.intersected.material.color.setHex(0xff0000);
 
-    const intersects = this.raycaster.intersectObjects(models, true);
-    if (intersects.length > 0) {
-      const selectedObject = intersects[0].object;
-      // 更新当前被点击的模型，并改变颜色
-      selectedObject.material.color.set('#69f'); // 设置新的颜色
-
+      }
+    } else {// 如果射线与模型不相交
+      // 如果上一次相交的模型存在, 将上一次相交的模型的颜色设置为之前记录的颜色
+      if (this.intersected) this.intersected.material.color.setHex(this.intersected.currentHex);
+      // 将上一次相交的模型设置为 null
+      this.intersected = null;
     }
 
 
 
 
+
+
+
   }
+
+
+
+
+
 
 
 
@@ -218,16 +262,6 @@ export default class initThree {
       this.camera.clear();
     }
   }
-
-  // 点击事件
-  // initRaycaster(callback, models = this.scene.children, eventName = "click") {
-  //   this.raycaster = new THREE.Raycaster();
-  //   this.rayFn = this.rayEventFn.bind(this, models, callback);
-  //   // 绑定点击事件
-  //   this.el.addEventListener(eventName, this.rayFn);
-  // }
-
-
 
 
 
