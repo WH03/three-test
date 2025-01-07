@@ -206,7 +206,6 @@ export default class initThree {
 
 
   rayEventFn(models, event) {
-    console.log(`output->执行了该函数`)
     const { width, height, top, left } = this.container.getBoundingClientRect();
     const mouse = {
       x: ((event.clientX - left) / width) * 2 - 1,
