@@ -239,6 +239,33 @@ export default class initThree {
     }
   }
 
+  // 执行
+  // const _intersectObjects = raycaster.intersectObjects(this.modelsArr, true)
+  // this.intersectObject = _intersectObjects[0];
+  // this.changeSelect(this.intersectObject)
+
+  // 修改颜色
+  changeSelect(intersectObject) {
+    // 若之前已有模型被选择，且不等于当前所选择的模型，取消之前选择的的高亮,还原为原来的颜色
+    if (this.currentModel && this.currentModel !== intersectObject) {
+      this.currentModel.object.material = this.currentModel.object._orgMaterial;
+    }
+
+    if (intersectObject) {//若当前所选对象不为空：
+      if (intersectObject !== this.currentModel) {//若当前所选对象不等于上一次所选对象：
+        this.currentModel = intersectObject;  //获取选中模型
+        let curObject = this.currentModel.object
+        let _orgMaterial = this.currentModel.object.material; // 存一下原来的材质 
+        curObject._orgMaterial = _orgMaterial
+
+        curObject.currentHex = curObject.material.emissive.getHex();
+        curObject.material = _orgMaterial.clone();
+        curObject.material.emissive.setHex('0x0000FF00');//  将模型高亮。
+      }
+    } else if (this.currentModel) {//
+      this.currentModel = null//置空当前所选
+    }
+  }
 
 
 
