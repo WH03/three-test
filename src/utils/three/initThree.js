@@ -12,6 +12,8 @@ export default class initThree {
     this.controls = null;
     this.renderAnimation = null;
     this.intersected = null
+    this.currentModel = null
+    this.modelsArr = [];//模型数组
     // 初始尺寸
     const { width, height } = this.container.getBoundingClientRect();
     this.width = width;
@@ -142,6 +144,18 @@ export default class initThree {
     gltfLoader.setDRACOLoader(dracoLoader);
     gltfLoader.load(gltfModel, (obj) => {
 
+      console.log(`output->obj.scene`, obj.scene)
+      obj.scene.traverse((child) => {
+        if (child.isMesh) {
+          // child.castShadow = true;
+          // child.receiveShadow = true;
+          // console.log(`output->child`, child)
+          // console.log('模型节点', child);
+          // console.log('模型节点名字', child.name);
+          // console.log('模型默认材质', child.material);
+          this.modelsArr.push(child)
+        }
+      });
 
       obj.scene.scale.set(scale.x, scale.y, scale.z);
       obj.scene.rotation.set(rotation.x, rotation.y, rotation.z);
@@ -157,6 +171,7 @@ export default class initThree {
     sprite.rotation.set(rotation.x, rotation.y, rotation.z);
     sprite.position.set(position.x, position.y, position.z);
     this.scene.add(sprite);
+    this.modelsArr.push(sprite)
     return sprite
   }
 
@@ -172,6 +187,7 @@ export default class initThree {
     mesh.rotation.set(rotation.x, rotation.y, rotation.z);
     mesh.position.set(position.x, position.y, position.z);
     this.scene.add(mesh);
+    this.modelsArr.push(mesh)
     return mesh
   }
 
@@ -215,7 +231,7 @@ export default class initThree {
 
     let intersects = this.raycaster.intersectObjects(models, true);// 射线与模型相交
 
-    if (intersects.length > 0) {// 如果射线与模型相交
+/*     if (intersects.length > 0) {// 如果射线与模型相交
       if (this.intersected != intersects[0].object) {// 如果射线与上一次相交的模型不同
         // 如果上一次相交的模型存在
         if (this.intersected) {
@@ -236,8 +252,11 @@ export default class initThree {
       }
       // 将上一次相交的模型设置为 null
       this.intersected = null;
+    } */
+  
+      this.changeSelect(intersects)
+  
     }
-  }
 
   // 执行
   // const _intersectObjects = raycaster.intersectObjects(this.modelsArr, true)

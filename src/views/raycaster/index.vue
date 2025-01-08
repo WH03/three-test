@@ -21,13 +21,27 @@
 
     let baseThree;
 
+    // let gltfModel = ref('/models/DJ.glb')
+    // let gltfModel = ref('/models/gltf/level.glb')
+    let gltfModel = ref('/models/gltf/shiji-v4.glb')
 
     onMounted(() => {
         baseThree = new initThree('#canvasDom');
-        baseThree.loadCubeModel(0xffff00, 2, 2, 2, { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { x: -5, y: 0, z: 0 });
+        baseThree.loadCubeModel(0xff00cc, 2, 2, 2, { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { x: -5, y: 0, z: 0 });
 
         baseThree.loadCubeModel(0xffff00, 3, 3, 3, { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 });
-        baseThree.initRaycaster('mousemove', baseThree.scene.children);
+
+        baseThree.loadGLTFModel(gltfModel.value,
+            { x: 10, y: 10, z: 10 },  // scale
+            { x: 0, y: 0, z: 0 },  // rotation
+            { x: 5, y: 0, z: 0 }   // position
+        );
+
+        // baseThree.initRaycaster('mousemove', baseThree.scene.children);
+        baseThree.initRaycaster('mousemove', baseThree.modelsArr);
+
+        // console.log(`output-> baseThree.modelsArr`, baseThree.modelsArr);
+
         // baseThree.initRaycaster('click', baseThree.scene.children);
     });
 
