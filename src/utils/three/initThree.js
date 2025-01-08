@@ -11,7 +11,6 @@ export default class initThree {
     this.renderer = null;
     this.controls = null;
     this.renderAnimation = null;
-    this.intersected = null
     this.currentModel = null
     this.modelsArr = [];//模型数组
     // 初始尺寸
@@ -199,27 +198,6 @@ export default class initThree {
     this.container.addEventListener(eventName, this.rayEventFn.bind(this, models), false);
   }
 
-  // rayEventFn(models, event) {
-  //   let selectedObjectColor, selectedObject, originalColor;//记录当前选择的颜色
-  //   const { width, height, top, left } = this.container.getBoundingClientRect();
-  //   const mouse = {
-  //     x: ((event.clientX - left) / width) * 2 - 1,
-  //     y: -((event.clientY - top) / height) * 2 + 1,
-  //   };
-
-  //   this.raycaster.setFromCamera(mouse, this.camera);
-  //   let intersects = this.raycaster.intersectObjects(models, true);
-  //   if (intersects.length > 0) {
-  //     selectedObject = intersects[0].object;
-  //     selectedObjectColor = selectedObject.material.color.getHexString();//记录当前选择的颜色
-  //     // 更新当前被点击的模型，并改变颜色
-  //     selectedObject.material.color.set('#69f'); // 设置新的颜色
-  //   } else {//没有选中任何模型
-  //     console.log(`output->没有选中任何模型selectedObjectColor：`, selectedObjectColor)
-  //   }
-
-  // }
-
 
   rayEventFn(models, event) {
     const { width, height, top, left } = this.container.getBoundingClientRect();
@@ -229,39 +207,10 @@ export default class initThree {
     };
     this.raycaster.setFromCamera(mouse, this.camera);// 设置射线
 
-    let intersects = this.raycaster.intersectObjects(models, true);// 射线与模型相交
-
-/*     if (intersects.length > 0) {// 如果射线与模型相交
-      if (this.intersected != intersects[0].object) {// 如果射线与上一次相交的模型不同
-        // 如果上一次相交的模型存在
-        if (this.intersected) {
-          this.intersected.material.color.setHex(this.intersected.currentHex);
-        }
-        // 记录当前相交的模型
-        this.intersected = intersects[0].object;
-        // 记录当前相交的模型的颜色
-        this.intersected.currentHex = this.intersected.material.color.getHex();
-        // 将当前相交的模型的颜色设置为红色
-        this.intersected.material.color.setHex(0xff0000);
-
-      }
-    } else {// 如果射线与模型不相交
-      // 如果上一次相交的模型存在, 将上一次相交的模型的颜色设置为之前记录的颜色
-      if (this.intersected) {
-        this.intersected.material.color.setHex(this.intersected.currentHex);
-      }
-      // 将上一次相交的模型设置为 null
-      this.intersected = null;
-    } */
-  
-      this.changeSelect(intersects)
-  
-    }
-
-  // 执行
-  // const _intersectObjects = raycaster.intersectObjects(this.modelsArr, true)
-  // this.intersectObject = _intersectObjects[0];
-  // this.changeSelect(this.intersectObject)
+    // let intersects = this.raycaster.intersectObjects(models, true)[0];// 射线与模型相交
+    let intersect = this.raycaster.intersectObjects(models, true)[0];// 射线与模型相交
+    this.changeSelect(intersect)
+  }
 
   // 修改颜色
   changeSelect(intersectObject) {
@@ -281,12 +230,10 @@ export default class initThree {
         curObject.material = _orgMaterial.clone();
         curObject.material.emissive.setHex('0x0000FF00');//  将模型高亮。
       }
-    } else if (this.currentModel) {//
+    } else  {
       this.currentModel = null//置空当前所选
     }
   }
-
-
 
 
 

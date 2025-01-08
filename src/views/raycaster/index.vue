@@ -12,65 +12,65 @@
 </template>
 
 <script setup>
-    import { ref, onMounted, onUnmounted } from 'vue';
-    import * as THREE from "three";
-    import initThree from "@/utils/three/initThree.js";
-    import { clearScene, disposeChild } from "@/utils/three/clearScene.js";
+import { ref, onMounted, onUnmounted } from 'vue';
+import * as THREE from "three";
+import initThree from "@/utils/three/initThree.js";
+import { clearScene, disposeChild } from "@/utils/three/clearScene.js";
 
 
 
-    let baseThree;
+let baseThree;
 
-    // let gltfModel = ref('/models/DJ.glb')
-    // let gltfModel = ref('/models/gltf/level.glb')
-    let gltfModel = ref('/models/gltf/shiji-v4.glb')
+// let gltfModel = ref('/models/DJ.glb')
+// let gltfModel = ref('/models/gltf/level.glb')
+// let gltfModel = ref('/models/gltf/shiji-v4.glb')
+let gltfModel = ref('models/20240222/body.gltf')
 
-    onMounted(() => {
-        baseThree = new initThree('#canvasDom');
-        baseThree.loadCubeModel(0xff00cc, 2, 2, 2, { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { x: -5, y: 0, z: 0 });
+onMounted(() => {
+    baseThree = new initThree('#canvasDom');
+    baseThree.loadCubeModel(0xff00cc, 2, 2, 2, { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { x: -5, y: 0, z: 0 });
 
-        baseThree.loadCubeModel(0xffff00, 3, 3, 3, { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 });
+    baseThree.loadCubeModel(0xffff00, 3, 3, 3, { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 });
 
-        baseThree.loadGLTFModel(gltfModel.value,
-            { x: 10, y: 10, z: 10 },  // scale
-            { x: 0, y: 0, z: 0 },  // rotation
-            { x: 5, y: 0, z: 0 }   // position
-        );
+    baseThree.loadGLTFModel(gltfModel.value,
+        { x: 5, y: 5, z: 5 },  // scale
+        { x: 0, y: 0, z: 0 },  // rotation
+        { x: 2, y: 0, z: 0 }   // position
+    );
 
-        // baseThree.initRaycaster('mousemove', baseThree.scene.children);
-        baseThree.initRaycaster('mousemove', baseThree.modelsArr);
+    // baseThree.initRaycaster('mousemove', baseThree.scene.children);
+    baseThree.initRaycaster('mousemove', baseThree.modelsArr);
 
-        // console.log(`output-> baseThree.modelsArr`, baseThree.modelsArr);
+    // console.log(`output-> baseThree.modelsArr`, baseThree.modelsArr);
 
-        // baseThree.initRaycaster('click', baseThree.scene.children);
-    });
+    // baseThree.initRaycaster('click', baseThree.scene.children);
+});
 
-    // 销毁
-    onUnmounted(() => {
-        if (baseThree) {
-            clearScene(baseThree.scene.children, baseThree.scene, baseThree.camera, baseThree.renderer);
-        }
-    })
+// 销毁
+onUnmounted(() => {
+    if (baseThree) {
+        clearScene(baseThree.scene.children, baseThree.scene, baseThree.camera, baseThree.renderer);
+    }
+})
 </script>
 
 <style scoped lang="scss">
-    .canvasbox {
-        width: 100%;
-        height: 100%;
-        position: relative;
-        display: flex;
-        box-sizing: border-box;
-    }
+.canvasbox {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    box-sizing: border-box;
+}
 
-    .ant-space {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-    }
+.ant-space {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
 
-    .canvasDom {
-        width: 100%;
-        height: 100%;
-    }
-
+.canvasDom {
+    width: 100%;
+    height: 100%;
+}
 </style>
