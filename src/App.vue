@@ -3,8 +3,8 @@
     <a-layout-header class="header">
       <div class="logo">
         <img src="./assets/vue.svg" alt="" />
-
       </div>
+      <p>本地测试</p>
     </a-layout-header>
     <a-layout>
       <a-layout-sider v-model:collapsed="collapsed" collapsible>
@@ -86,10 +86,18 @@
     .logo {
       width: 50px;
       height: 50px;
+      color: #fff;
 
       img {
         width: 100%;
       }
+    }
+
+    p {
+      font-size: 18px;
+      font-weight: bolder;
+      color: #fff;
+      margin-left: 10px;
     }
 
     .ant-layout-content {

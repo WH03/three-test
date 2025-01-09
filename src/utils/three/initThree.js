@@ -17,10 +17,16 @@ export default class initThree {
     const { width, height } = this.container.getBoundingClientRect();
     this.width = width;
     this.height = height;
+    this.sphereMesh = null
+    this.clickPoints = []
 
+    this.progress = 0; // 物体运动时在运动路径的初始位置，范围0~1
+    this.velocity = 0.001; // 影响运动速率的一个值，范围0~1，需要和渲染频率结合计算才能得到真正的速率
+    this.gltfModel = null;
 
     // 屏幕自适应
-    window.addEventListener("resize", this.onResize.bind(this));
+    window.addEventListener("resize", () => this.onResize());
+
 
     // document.addEventListener('pointermove', onPointerMove);
 
@@ -39,7 +45,7 @@ export default class initThree {
     this.initAmbientLight()//环境光
     this.initDirectionalLight()//平行光
     this.update()//更新
-    this.initAxesHelper()//辅助坐标轴
+    // this.initAxesHelper()//辅助坐标轴
 
     this.sceneAnimation()//场景动画
   }
@@ -63,7 +69,8 @@ export default class initThree {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(this.width, this.height);
-    this.renderer.setClearColor('#add8e6');
+    // this.renderer.setClearColor('#add8e6');
+    this.renderer.setClearColor('#000');
     this.container.appendChild(this.renderer.domElement);
   }
 
@@ -121,15 +128,17 @@ export default class initThree {
   }
 
   // 导入PCD文件
-  loadPCDModel(pcdFile, scale, rotation, position) {
+  loadPCDModel(pcdFile, scale, rotation) {
     const pcdLoader = new PCDLoader();
     pcdLoader.load(pcdFile, (obj) => {
+      // console.log(`output->obj`, obj)
       obj.geometry.center();
       obj.name = 'pcd';
       obj.scale.set(scale.x, scale.y, scale.z);
       obj.rotation.set(rotation.x, rotation.y, rotation.z);
-      obj.position.set(position.x, position.y, position.z);
+      // obj.position.set(position.x, position.y, position.z);
       this.scene.add(obj);
+      // this.modelsArr.push(obj)
     });
   }
 
@@ -146,12 +155,8 @@ export default class initThree {
       console.log(`output->obj.scene`, obj.scene)
       obj.scene.traverse((child) => {
         if (child.isMesh) {
-          // child.castShadow = true;
-          // child.receiveShadow = true;
-          // console.log(`output->child`, child)
-          // console.log('模型节点', child);
-          // console.log('模型节点名字', child.name);
-          // console.log('模型默认材质', child.material);
+          child.castShadow = true;
+          child.receiveShadow = true;
           this.modelsArr.push(child)
         }
       });
@@ -160,6 +165,7 @@ export default class initThree {
       obj.scene.rotation.set(rotation.x, rotation.y, rotation.z);
       obj.scene.position.set(position.x, position.y, position.z);
       this.scene.add(obj.scene);
+      this.gltfModel = obj.scene
     });
   }
 
@@ -190,52 +196,201 @@ export default class initThree {
     return mesh
   }
 
+  //创建球
+  addSphere(position, visible) {
+    const sphereGeometry = new THREE.SphereGeometry(0.2);
+    const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
+    this.sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    this.sphereMesh.position.set(position.x, position.y, position.z);
+    this.sphereMesh.visible = visible;
+    this.scene.add(this.sphereMesh);
+    return this.sphereMesh
+  }
+
+  // 创建线
+  addLine(points) {
+    const material = new THREE.LineBasicMaterial({
+      color: 0x0000ff
+    });
+
+    // const points = [];
+    // points.push(new THREE.Vector3(- 10, 0, 0));
+    // points.push(new THREE.Vector3(0, 10, 0));
+    // points.push(new THREE.Vector3(10, 0, 0));
+
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+    const line = new THREE.Line(geometry, material);
+    this.scene.add(line);
+  }
+
+
+
+  // 物体沿线移动方法
+  moveOnCurve() {
+    if (this.clickPoints == null ||  this.gltfModel == null) {
+      console.log("Loading")
+    } else {
+      if (progress <= 1 - velocity) {
+        const point = this.clickPoints.getPointAt(progress); //获取样条曲线指定点坐标
+        const pointBox = this.clickPoints.getPointAt(progress + velocity); //获取样条曲线指定点坐标
+
+        if (point && pointBox) {
+          this.gltfModel.position.set(point.x, point.y, point.z);
+          // model.lookAt(pointBox.x, pointBox.y, pointBox.z);//因为这个模型加载进来默认面部是正对Z轴负方向的，所以直接lookAt会导致出现倒着跑的现象，这里用重新设置朝向的方法来解决。
+
+          var targetPos = pointBox //目标位置点
+          var offsetAngle = 0 //目标移动时的朝向偏移
+
+          // //以下代码在多段路径时可重复执行
+          var mtx = new THREE.Matrix4() //创建一个4维矩阵
+          // .lookAt ( eye : Vector3, target : Vector3, up : Vector3 ) : this,构造一个旋转矩阵，从eye 指向 target，由向量 up 定向。
+          mtx.lookAt( this.gltfModel.position, targetPos,  this.gltfModel.up) //设置朝向
+          mtx.multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(0, offsetAngle, 0)))
+          var toRot = new THREE.Quaternion().setFromRotationMatrix(mtx) //计算出需要进行旋转的四元数值
+          this.gltfModel.quaternion.slerp(toRot, 0.2)
+        }
+
+        progress += velocity;
+      } else {
+        progress = 0;
+      }
+    }
+
+  };
+
+
+
+
+
+
+
+
+
+  // // 鼠标事件
+  // initRaycaster(eventName, models) {
+  //   this.raycaster = new THREE.Raycaster();
+  //   this.container.addEventListener(eventName, this.rayEventFn.bind(this, models), false);
+  // }
+
+  // rayEventFn(models, event) {
+  //   const { width, height, top, left } = this.container.getBoundingClientRect();
+  //   const mouse = {
+  //     x: ((event.clientX - left) / width) * 2 - 1,
+  //     y: -((event.clientY - top) / height) * 2 + 1,
+  //   };
+  //   this.raycaster.setFromCamera(mouse, this.camera);// 设置射线
+
+  //   // let intersects = this.raycaster.intersectObjects(models, true)[0];// 射线与模型相交
+  //   let intersect = this.raycaster.intersectObjects(models, true)[0];// 射线与模型相交
+  //   this.changeSelect(intersect)
+  // }
+
+  // // 修改颜色
+  // changeSelect(intersectObject) {
+  //   // 若之前已有模型被选择，且不等于当前所选择的模型，取消之前选择的的高亮,还原为原来的颜色
+  //   if (this.currentModel && this.currentModel !== intersectObject) {
+  //     this.currentModel.object.material = this.currentModel.object._orgMaterial;
+  //   }
+
+  //   if (intersectObject) {//若当前所选对象不为空：
+  //     if (intersectObject !== this.currentModel) {//若当前所选对象不等于上一次所选对象：
+  //       this.currentModel = intersectObject;  //获取选中模型
+  //       let curObject = this.currentModel.object
+  //       let _orgMaterial = this.currentModel.object.material; // 存一下原来的材质 
+  //       curObject._orgMaterial = _orgMaterial
+
+  //       curObject.currentHex = curObject.material.emissive.getHex();
+  //       curObject.material = _orgMaterial.clone();
+  //       curObject.material.emissive.setHex('0x00FF00');//  将模型高亮。
+  //     }
+  //   } else  {
+  //     this.currentModel = null//置空当前所选
+  //   }
+  // }
 
   // 鼠标事件
   initRaycaster(eventName, models) {
     this.raycaster = new THREE.Raycaster();
-    this.container.addEventListener(eventName, this.rayEventFn.bind(this, models), false);
+    // this.addLine()
+    // this.addSphere({ x: 0, y: 0, z: 0 }, false)
+    this.container.addEventListener(eventName, (event) => this.rayEventFn(models, event), false);
   }
 
-
+  // 处理射线事件
   rayEventFn(models, event) {
     const { width, height, top, left } = this.container.getBoundingClientRect();
     const mouse = {
       x: ((event.clientX - left) / width) * 2 - 1,
       y: -((event.clientY - top) / height) * 2 + 1,
     };
-    this.raycaster.setFromCamera(mouse, this.camera);// 设置射线
+    this.raycaster.setFromCamera(mouse, this.camera); // 设置射线
 
-    // let intersects = this.raycaster.intersectObjects(models, true)[0];// 射线与模型相交
-    let intersect = this.raycaster.intersectObjects(models, true)[0];// 射线与模型相交
-    this.changeSelect(intersect)
+    const intersect = this.raycaster.intersectObjects(models, true)[0]; // 射线与模型相交
+    // this.changeSelect(intersect); // 修改高亮
+    if (intersect) {
+      // this.changeSelect(intersect);
+      // console.log("交叉点坐标intersect.point:", intersect.point);
+      // console.log("交叉对象intersect.object:", intersect.object);
+      // console.log("射线原点和交叉点距离intersect.distance:", intersect.distance);
+      // let position = intersect.point;
+      // this.addSphere()
+      // this.sphereMesh.visible = true;
+      // this.sphereMesh.position.copy(intersect.point);
+      this.addSphere(intersect.point, true);//添加圆点
+      this.clickPoints.push(intersect.point)//保存原点
+      this.addLine(this.clickPoints)//画线
+    } else {
+      this.sphereMesh.visible = false;
+    }
   }
+
+
+
+
+
+
 
   // 修改颜色
   changeSelect(intersectObject) {
-    // 若之前已有模型被选择，且不等于当前所选择的模型，取消之前选择的的高亮,还原为原来的颜色
     if (this.currentModel && this.currentModel !== intersectObject) {
-      this.currentModel.object.material = this.currentModel.object._orgMaterial;
+      // 取消之前选择的模型的高亮，恢复原材质
+      this.resetModelMaterial(this.currentModel.object);
     }
 
-    if (intersectObject) {//若当前所选对象不为空：
-      if (intersectObject !== this.currentModel) {//若当前所选对象不等于上一次所选对象：
-        this.currentModel = intersectObject;  //获取选中模型
-        let curObject = this.currentModel.object
-        let _orgMaterial = this.currentModel.object.material; // 存一下原来的材质 
-        curObject._orgMaterial = _orgMaterial
-
-        curObject.currentHex = curObject.material.emissive.getHex();
-        curObject.material = _orgMaterial.clone();
-        curObject.material.emissive.setHex('0x0000FF00');//  将模型高亮。
+    if (intersectObject) {
+      // 若选中的对象与当前选中的对象不同，进行高亮
+      if (intersectObject !== this.currentModel) {
+        this.currentModel = intersectObject;
+        const curObject = this.currentModel.object;
+        this.highlightModelMaterial(curObject); // 高亮选中的模型
       }
-    } else  {
-      this.currentModel = null//置空当前所选
+    } else {
+      // 取消当前选择
+      this.currentModel = null;
     }
   }
 
+  // 恢复原材质
+  resetModelMaterial(object) {
+    if (object._orgMaterial) {
+      object.material = object._orgMaterial; // 恢复原材质
+      delete object._orgMaterial; // 删除缓存的原材质
+    }
+  }
 
+  // 高亮选中模型
+  highlightModelMaterial(object) {
+    if (!object._orgMaterial) {
+      // 缓存原材质
+      object._orgMaterial = object.material;
+    }
+    // 进行高亮显示
+    object.currentHex = object.material.emissive.getHex();// 获取原材质的高亮颜色
+    object.material = object._orgMaterial.clone();// 克隆材质
+    object.material.emissive.setHex(0x00FF00); // 高亮颜色，绿色
+  }
 
 
 

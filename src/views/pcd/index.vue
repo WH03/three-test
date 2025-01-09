@@ -1,9 +1,10 @@
 <template>
     <div class="canvasbox">
         <div class="canvasDom" id="canvasDom"></div>
-        <!-- <a-space>
-            <a-button type="primary" danger @click="clearObjects">清除</a-button>
-        </a-space> -->
+        <a-space>
+            <a-button type="primary" @click="curveMove">轨迹动画</a-button>
+            <!-- <a-button type="primary" danger @click="clearObjects">清除</a-button> -->
+        </a-space>
     </div>
 
 
@@ -22,9 +23,16 @@
 
     let baseThree;
     // 加载点云模型
-    // let model = ref('/models/pcd/test.pcd')
-    let pcdModel = ref('/models/pcd/pcl_logo.pcd')
-    let gltfModel = ref('/models/DJ.glb')
+    let pcdModel = ref('/models/pcd/default/GlobalMap.pcd')
+
+
+
+
+    const curveMove = () => {
+
+    }
+
+
 
 
     onMounted(() => {
@@ -32,9 +40,9 @@
         // baseThree.init()
         // 加载 PCD 模型
         baseThree.loadPCDModel(pcdModel.value,
-            { x: 10, y: 10, z: 10 },  // scale
-            { x: Math.PI, y: 0, z: 0 },  // rotation
-            { x: 0, y: 0, z: 0 }   // position
+            { x: 1, y: 1, z: 1 },  // scale
+            { x: Math.PI / 2, y: Math.PI, z: 0 },  // rotation
+            // { x: 0, y: 0, z: 0 }   // position
         );
         baseThree.initRaycaster('click', baseThree.scene.children);
 
