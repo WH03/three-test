@@ -26,7 +26,12 @@
     let pcdModel = ref('/models/pcd/default/GlobalMap.pcd')
 
 
-
+    let pointList = [
+        new THREE.Vector3(-3, 4, 2),
+        new THREE.Vector3(3, 4, 2),
+        new THREE.Vector3(3, 4, -2),
+        new THREE.Vector3(5, 2, -2),
+    ];
 
     const curveMove = () => {
 
@@ -44,6 +49,8 @@
             { x: Math.PI / 2, y: Math.PI, z: 0 },  // rotation
             // { x: 0, y: 0, z: 0 }   // position
         );
+
+        baseThree.addCurveLine(pointList);
         baseThree.initRaycaster('click', baseThree.scene.children);
 
     });
