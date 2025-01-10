@@ -93,7 +93,11 @@ export default class initThree {
     if (this.mixer) {
       this.mixer.update(delta);
     }
+    this.modelMove();
+  }
 
+
+  modelMove() {
     //参考路径的索引在1001~0中往复减少以实现小车循环行驶
     if (this.pathIndex === 0) {
       this.pathIndex = 1001;
@@ -108,6 +112,10 @@ export default class initThree {
       this.robot.lookAt(lookAtVec);//设置agv的模型朝向为切线的方向
     }
   }
+
+
+
+
 
   // 屏幕尺寸变化时更新
   onResize() {
@@ -261,8 +269,8 @@ export default class initThree {
     this.curveLine.tension = 0.5; //设置线的张力，0为无弧度折线
 
     //参考路径上取1000个点
-    const pathPoints = this.curveLine.getPoints(points.length*1);
-    console.log(`output->pathPoints`, pathPoints)
+    const pathPoints = this.curveLine.getPoints(points.length);
+    // console.log(`output->pathPoints`, pathPoints)
     //绘制一条路径参考线与上面的线重合，方便查看小车的行动轨迹
     const geometry = new THREE.BufferGeometry().setFromPoints(pathPoints);
     const material = new THREE.LineBasicMaterial({ color: '#0ff' });//设置线条的颜色和宽度
@@ -278,17 +286,17 @@ export default class initThree {
     dracoLoader.preload();
     gltfLoader.setDRACOLoader(dracoLoader);
     gltfLoader.load("/models/gltf/Soldier.glb", (gltf) => {
-      // gltfLoader.load("/models/gltf/Xbot.glb", (gltf) => {
+    // gltfLoader.load("/models/gltf/RobotExpressive/RobotExpressive.glb", (gltf) => {
 
       this.robot = gltf.scene;
       console.log(`output-> gltf.scene`, gltf.scene)
-      this.robot.scale.set(1, 1, 1)
-      this.robot.rotateY(Math.PI / 2)
+      // this.robot.scale.set(0.1, 0.1, 0.1)
+      // this.robot.rotation.set(Math.PI, Math.PI, Math.PI)
       this.robot.position.set(pathPoints[0].x, pathPoints[0].y, pathPoints[0].z)   // 模型位置
       this.scene.add(this.robot)   // 加入场景
 
       this.mixer = new THREE.AnimationMixer(this.robot);
-      console.log(`output->gltf`, gltf)
+      // console.log(`output->gltf`, gltf)
       this.mixer.clipAction(gltf.animations[3]).play();
       // this.mixer.clipAction(gltf.animations[0]).play();
     })
