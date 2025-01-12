@@ -13,6 +13,9 @@ import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';//PCDLoader模块
     this.renderAnimation = null;
     this.currentModel = null
     this.modelsArr = [];//模型数组
+
+    this.pathIndex = 1000//小车的运动轨迹点索引
+    this.clock = new THREE.Clock();
     // 初始尺寸
     const { width, height } = this.container.getBoundingClientRect();
     this.width = width;
@@ -26,9 +29,6 @@ import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';//PCDLoader模块
 
     // 屏幕自适应
     window.addEventListener("resize", () => this.onResize());
-
-
-    // document.addEventListener('pointermove', onPointerMove);
 
     this.init();
 
@@ -70,7 +70,7 @@ import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';//PCDLoader模块
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(this.width, this.height);
     // this.renderer.setClearColor('#add8e6');
-    this.renderer.setClearColor('#000');
+    this.renderer.setClearColor('#708090');
     this.container.appendChild(this.renderer.domElement);
   }
 
@@ -87,7 +87,35 @@ import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';//PCDLoader模块
     this.renderAnimation = requestAnimationFrame(this.sceneAnimation.bind(this));
     this.update();
     this.controls.update();
+
+    const delta = this.clock.getDelta();
+
+    if (this.mixer) {
+      this.mixer.update(delta);
+    }
+    this.modelMove();
   }
+
+
+  modelMove() {
+    //参考路径的索引在1001~0中往复减少以实现小车循环行驶
+    if (this.pathIndex === 0) {
+      this.pathIndex = 1001;
+    }
+    this.pathIndex -= 1;
+    if (this.robot) {// 判断agv加载完成后，开始不断更新agv的位置
+      const sphereCurveIndex = this.pathIndex / 1000; // //取相参考径上当前点的坐标，取值0~1
+      const positionVec = this.curveLine.getPointAt(sphereCurveIndex);//获取曲线上位置的点，传值为0-1的小数表示整个线段的位置
+      this.robot.position.set(positionVec.x, positionVec.y, positionVec.z);//设置新的agv位置
+      const tangent = this.curveLine.getTangentAt(sphereCurveIndex); // 返回一个点t在曲线上位置向量的法线向量（getTangentAt是返回曲线上某个点的切线）
+      const lookAtVec = tangent.add(positionVec);// 位置向量和切线向量相加即为所需朝向的点向量
+      this.robot.lookAt(lookAtVec);//设置agv的模型朝向为切线的方向
+    }
+  }
+
+
+
+
 
   // 屏幕尺寸变化时更新
   onResize() {
@@ -226,38 +254,62 @@ import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';//PCDLoader模块
   }
 
 
+  addCurveLine(points) {
+    this.curveLine = new THREE.CatmullRomCurve3(
+      points,
+      // [
+      //   new THREE.Vector3(-3, 4, 2),
+      //   new THREE.Vector3(3, 4, 2),
+      //   new THREE.Vector3(3, 4, -2),
+      // ]
+    );
 
-  // 物体沿线移动方法
-  moveOnCurve() {
-    if (this.clickPoints == null ||  this.gltfModel == null) {
-      console.log("Loading")
-    } else {
-      if (progress <= 1 - velocity) {
-        const point = this.clickPoints.getPointAt(progress); //获取样条曲线指定点坐标
-        const pointBox = this.clickPoints.getPointAt(progress + velocity); //获取样条曲线指定点坐标
+    this.curveLine.curveType = "catmullrom";
+    // this.curveLine.closed = true; //设置是否闭环
+    this.curveLine.tension = 0.5; //设置线的张力，0为无弧度折线
 
-        if (point && pointBox) {
-          this.gltfModel.position.set(point.x, point.y, point.z);
-          // model.lookAt(pointBox.x, pointBox.y, pointBox.z);//因为这个模型加载进来默认面部是正对Z轴负方向的，所以直接lookAt会导致出现倒着跑的现象，这里用重新设置朝向的方法来解决。
+    //参考路径上取1000个点
+    const pathPoints = this.curveLine.getPoints(points.length);
+    // console.log(`output->pathPoints`, pathPoints)
+    //绘制一条路径参考线与上面的线重合，方便查看小车的行动轨迹
+    const geometry = new THREE.BufferGeometry().setFromPoints(pathPoints);
+    const material = new THREE.LineBasicMaterial({ color: '#0ff' });//设置线条的颜色和宽度
+    const curveObject = new THREE.Line(geometry, material);
+    this.scene.add(curveObject);
 
-          var targetPos = pointBox //目标位置点
-          var offsetAngle = 0 //目标移动时的朝向偏移
 
-          // //以下代码在多段路径时可重复执行
-          var mtx = new THREE.Matrix4() //创建一个4维矩阵
-          // .lookAt ( eye : Vector3, target : Vector3, up : Vector3 ) : this,构造一个旋转矩阵，从eye 指向 target，由向量 up 定向。
-          mtx.lookAt( this.gltfModel.position, targetPos,  this.gltfModel.up) //设置朝向
-          mtx.multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(0, offsetAngle, 0)))
-          var toRot = new THREE.Quaternion().setFromRotationMatrix(mtx) //计算出需要进行旋转的四元数值
-          this.gltfModel.quaternion.slerp(toRot, 0.2)
-        }
-
+<<<<<<< HEAD
         progress += velocity;
       } else {
         progress = 0;
       }
     }
   };
+=======
+
+    const gltfLoader = new GLTFLoader();
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath(`draco/gltf/`);
+    dracoLoader.setDecoderConfig({ type: "js" });
+    dracoLoader.preload();
+    gltfLoader.setDRACOLoader(dracoLoader);
+    gltfLoader.load("/models/gltf/Soldier.glb", (gltf) => {
+    // gltfLoader.load("/models/gltf/RobotExpressive/RobotExpressive.glb", (gltf) => {
+
+      this.robot = gltf.scene;
+      console.log(`output-> gltf.scene`, gltf.scene)
+      // this.robot.scale.set(0.1, 0.1, 0.1)
+      // this.robot.rotation.set(Math.PI, Math.PI, Math.PI)
+      this.robot.position.set(pathPoints[0].x, pathPoints[0].y, pathPoints[0].z)   // 模型位置
+      this.scene.add(this.robot)   // 加入场景
+
+      this.mixer = new THREE.AnimationMixer(this.robot);
+      // console.log(`output->gltf`, gltf)
+      this.mixer.clipAction(gltf.animations[3]).play();
+      // this.mixer.clipAction(gltf.animations[0]).play();
+    })
+  }
+>>>>>>> 4580ca12610ee8c940dfb6342c3a7befd3b3a50c
 
 
 
