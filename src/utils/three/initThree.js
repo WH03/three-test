@@ -3,7 +3,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"; //轨
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";//DRACOLoader模块
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"; //GLTF模块
 import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';//PCDLoader模块
-export default class initThree {
+ class initThree {
   constructor(domSelector) {
     this.camera = null;
     this.scene = null;
@@ -180,7 +180,7 @@ export default class initThree {
     gltfLoader.setDRACOLoader(dracoLoader);
     gltfLoader.load(gltfModel, (obj) => {
 
-      console.log(`output->obj.scene`, obj.scene)
+      // console.log(`output->obj.scene`, obj.scene)
       obj.scene.traverse((child) => {
         if (child.isMesh) {
           child.castShadow = true;
@@ -373,7 +373,6 @@ export default class initThree {
       // console.log("交叉点坐标intersect.point:", intersect.point);
       // console.log("交叉对象intersect.object:", intersect.object);
       // console.log("射线原点和交叉点距离intersect.distance:", intersect.distance);
-      // let position = intersect.point;
       // this.addSphere()
       // this.sphereMesh.visible = true;
       // this.sphereMesh.position.copy(intersect.point);
@@ -383,6 +382,7 @@ export default class initThree {
     } else {
       this.sphereMesh.visible = false;
     }
+    return this.clickPoints
   }
 
 
@@ -447,5 +447,7 @@ export default class initThree {
   }
 
 
-
 }
+
+
+export {initThree }

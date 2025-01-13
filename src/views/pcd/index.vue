@@ -11,7 +11,7 @@
 
 <script setup>
     import { ref, onMounted, onUnmounted } from 'vue';
-    import initThree from "@/utils/three/initThree.js";
+    import { initThree } from "@/utils/three/initThree.js";
     // three
     import * as THREE from "three";
     import { clearScene, disposeChild } from "@/utils/three/clearScene.js";
@@ -21,6 +21,7 @@
     let baseThree;
     // 加载点云模型
     let pcdModel = ref('/models/pcd/default/GlobalMap.pcd')
+    let gltfModel = ref('/models/gltf/Soldier.glb')
 
 
     let pointList = [
@@ -37,6 +38,9 @@
 
 
 
+
+
+
     onMounted(() => {
         baseThree = new initThree('#canvasDom');
         // baseThree.init()
@@ -47,6 +51,15 @@
             // { x: 0, y: 0, z: 0 }   // position
         );
         baseThree.initRaycaster('click', baseThree.scene.children);
+
+        baseThree.loadGLTFModel(gltfModel.value,
+            { x: 1, y: 1, z: 1 },  // scale
+            { x: 0, y: 0, z: 0 },  // rotation
+            { x: 0, y: 0, z: 0 }   // position
+        );
+
+        console.log(baseThree)
+
 
     });
 
@@ -84,5 +97,4 @@
         height: 100%;
         // border: 5px solid #000;
     }
-
 </style>
