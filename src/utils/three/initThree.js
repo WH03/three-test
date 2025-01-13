@@ -286,7 +286,7 @@ export default class initThree {
     dracoLoader.preload();
     gltfLoader.setDRACOLoader(dracoLoader);
     gltfLoader.load("/models/gltf/Soldier.glb", (gltf) => {
-    // gltfLoader.load("/models/gltf/RobotExpressive/RobotExpressive.glb", (gltf) => {
+      // gltfLoader.load("/models/gltf/RobotExpressive/RobotExpressive.glb", (gltf) => {
 
       this.robot = gltf.scene;
       console.log(`output-> gltf.scene`, gltf.scene)
@@ -301,10 +301,6 @@ export default class initThree {
       // this.mixer.clipAction(gltf.animations[0]).play();
     })
   }
-
-
-
-
 
 
 
@@ -362,6 +358,7 @@ export default class initThree {
 
   // 处理射线事件
   rayEventFn(models, event) {
+    event.preventDefault();  // 阻止默认表单提交行为
     const { width, height, top, left } = this.container.getBoundingClientRect();
     const mouse = {
       x: ((event.clientX - left) / width) * 2 - 1,

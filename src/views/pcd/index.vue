@@ -7,9 +7,6 @@
         </a-space>
     </div>
 
-
-
-
 </template>
 
 <script setup>
@@ -34,7 +31,7 @@
     ];
 
     const curveMove = () => {
-
+        baseThree.addCurveLine(pointList);
     }
 
 
@@ -49,8 +46,6 @@
             { x: Math.PI / 2, y: Math.PI, z: 0 },  // rotation
             // { x: 0, y: 0, z: 0 }   // position
         );
-
-        baseThree.addCurveLine(pointList);
         baseThree.initRaycaster('click', baseThree.scene.children);
 
     });
