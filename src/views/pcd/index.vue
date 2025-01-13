@@ -3,6 +3,7 @@
         <div class="canvasDom" id="canvasDom"></div>
         <a-space>
             <a-button type="primary" @click="curveMove">轨迹动画</a-button>
+            <a-button type="primary" @click="startMove = !startMove">结束动画</a-button>
             <!-- <a-button type="primary" danger @click="clearObjects">清除</a-button> -->
         </a-space>
     </div>
@@ -11,18 +12,16 @@
 
 <script setup>
     import { ref, onMounted, onUnmounted } from 'vue';
-    import { initThree } from "@/utils/three/initThree.js";
+    import { baseScene } from "@/utils/three/BaseScene.js";
     // three
     import * as THREE from "three";
-    import { clearScene, disposeChild } from "@/utils/three/clearScene.js";
-
-
+    // console.log(`output->THREE`, THREE)
+    import { clearScene, disposeChild } from "@/utils/three/ClearScene.js";
 
     let baseThree;
-    // 加载点云模型
+    // 加载模型
     let pcdModel = ref('/models/pcd/default/GlobalMap.pcd')
     let gltfModel = ref('/models/gltf/Soldier.glb')
-
 
     let pointList = [
         new THREE.Vector3(-3, 4, 2),
@@ -31,18 +30,15 @@
         new THREE.Vector3(5, 2, -2),
     ];
 
+    let startMove = false
     const curveMove = () => {
+        startMove = true
         baseThree.addCurveLine(pointList);
     }
 
 
-
-
-
-
-
-    onMounted(() => {
-        baseThree = new initThree('#canvasDom');
+    onMounted(async () => {
+        baseThree = await new baseScene('#canvasDom');
         // baseThree.init()
         // 加载 PCD 模型
         baseThree.loadPCDModel(pcdModel.value,
@@ -52,13 +48,27 @@
         );
         baseThree.initRaycaster('click', baseThree.scene.children);
 
-        baseThree.loadGLTFModel(gltfModel.value,
-            { x: 1, y: 1, z: 1 },  // scale
-            { x: 0, y: 0, z: 0 },  // rotation
-            { x: 0, y: 0, z: 0 }   // position
-        );
+        // console.log(baseThree)
+        // baseThree.initAxesHelper()
+        baseThree.addStats()
 
-        console.log(baseThree)
+        // 动画效果
+        baseThree.sceneAnimation(() => {
+            // const delta = clock.getDelta()
+            // baseThree.controls.update()
+            // baseThree.update();
+            // baseThree.stats.update();
+            // baseThree.renderer.render(baseThree.scene, baseThree.camera)
+            // if (baseThree.mixer) {
+            //     baseThree.mixer.update(delta);
+            // }
+
+
+            if (startMove) {
+                baseThree.modelMove()
+            }
+        })
+
 
 
     });

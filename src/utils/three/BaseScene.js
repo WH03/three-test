@@ -3,7 +3,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"; //轨
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";//DRACOLoader模块
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"; //GLTF模块
 import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';//PCDLoader模块
- class initThree {
+import Stats from 'three/addons/libs/stats.module.js';
+class baseScene {
   constructor(domSelector) {
     this.camera = null;
     this.scene = null;
@@ -26,12 +27,9 @@ import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';//PCDLoader模块
     this.progress = 0; // 物体运动时在运动路径的初始位置，范围0~1
     this.velocity = 0.001; // 影响运动速率的一个值，范围0~1，需要和渲染频率结合计算才能得到真正的速率
     this.gltfModel = null;
-
     // 屏幕自适应
     window.addEventListener("resize", () => this.onResize());
-
     this.init();
-
   }
 
   init() {
@@ -45,11 +43,10 @@ import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';//PCDLoader模块
     this.initAmbientLight()//环境光
     this.initDirectionalLight()//平行光
     this.update()//更新
+
     // this.initAxesHelper()//辅助坐标轴
-
-    this.sceneAnimation()//场景动画
+    // this.sceneAnimation()//场景动画
   }
-
 
 
   // 创建场景
@@ -71,9 +68,9 @@ import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';//PCDLoader模块
     this.renderer.setSize(this.width, this.height);
     // this.renderer.setClearColor('#add8e6');
     this.renderer.setClearColor('#708090');
+
     this.container.appendChild(this.renderer.domElement);
   }
-
 
 
   // 更新渲染器
@@ -81,20 +78,34 @@ import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';//PCDLoader模块
     this.renderer.render(this.scene, this.camera);
   }
 
-  // 动画更新
-  sceneAnimation() {
-    // console.log(`output->111`)
-    this.renderAnimation = requestAnimationFrame(this.sceneAnimation.bind(this));
+  // 动画帧
+  sceneAnimation(callback) {
+    callback();//回调
+    this.frameId = requestAnimationFrame(() => this.sceneAnimation(callback));
     this.update();
     this.controls.update();
+    this.stats.update();
+    this.renderer.render(this.scene, this.camera)
 
     const delta = this.clock.getDelta();
-
     if (this.mixer) {
       this.mixer.update(delta);
+    } else {
+      this.mixer?.stopAllAction();
     }
-    this.modelMove();
   }
+
+  addStats() {
+    this.stats = new Stats();
+    this.stats.setMode(0)
+    // 设置监视器位置
+    this.stats.domElement.style.position = 'absolute'
+    this.stats.domElement.style.left = '95%'
+    this.stats.domElement.style.top = '0px'
+    this.container.appendChild(this.stats.domElement);
+  }
+
+
 
 
   modelMove() {
@@ -112,10 +123,6 @@ import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';//PCDLoader模块
       this.robot.lookAt(lookAtVec);//设置agv的模型朝向为切线的方向
     }
   }
-
-
-
-
 
   // 屏幕尺寸变化时更新
   onResize() {
@@ -380,7 +387,7 @@ import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';//PCDLoader模块
       this.clickPoints.push(intersect.point)//保存原点
       this.addLine(this.clickPoints)//画线
     } else {
-      this.sphereMesh.visible = false;
+      // this.sphereMesh.visible = false;
     }
     return this.clickPoints
   }
@@ -434,20 +441,20 @@ import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';//PCDLoader模块
 
 
   // 释放资源
-  dispose() {
-    if (this.renderAnimation) {
-      cancelAnimationFrame(this.renderAnimation);
-    }
-    if (this.renderer) {
-      this.renderer.dispose();
-    }
-    if (this.camera) {
-      this.camera.clear();
-    }
-  }
+  // dispose() {
+  //   if (this.renderAnimation) {
+  //     cancelAnimationFrame(this.renderAnimation);
+  //   }
+  //   if (this.renderer) {
+  //     this.renderer.dispose();
+  //   }
+  //   if (this.camera) {
+  //     this.camera.clear();
+  //   }
+  // }
 
 
 }
 
 
-export {initThree }
+export { baseScene }
