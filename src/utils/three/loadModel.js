@@ -76,14 +76,7 @@ class LoadModel {
         const material = new THREE.LineBasicMaterial({
             color: 0x0000ff
         });
-
-        // const points = [];
-        // points.push(new THREE.Vector3(- 10, 0, 0));
-        // points.push(new THREE.Vector3(0, 10, 0));
-        // points.push(new THREE.Vector3(10, 0, 0));
-
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
-
         const line = new THREE.Line(geometry, material);
         this.baseThree.scene.add(line);
     }
@@ -95,11 +88,6 @@ class LoadModel {
     addCurveLine(points) {
         this.curveLine = new THREE.CatmullRomCurve3(
             points,
-            // [
-            //   new THREE.Vector3(-3, 4, 2),
-            //   new THREE.Vector3(3, 4, 2),
-            //   new THREE.Vector3(3, 4, -2),
-            // ]
         );
 
         this.curveLine.curveType = "catmullrom";
@@ -176,16 +164,16 @@ class LoadModel {
 
 // }
 
-// 绘制直线
-function addLine(points, color) {
-    const material = new THREE.LineBasicMaterial({
-        color: 0x0000ff
-    });
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const line = new THREE.Line(geometry, material);
-    this.baseThree.add(line);
-}
+// // 绘制直线
+// function addLine(points, color) {
+//     const material = new THREE.LineBasicMaterial({
+//         color: 0x0000ff
+//     });
+//     const geometry = new THREE.BufferGeometry().setFromPoints(points);
+//     const line = new THREE.Line(geometry, material);
+//     this.baseThree.add(line);
+// }
 
 
 
-export { LoadModel, addLine };
+export { LoadModel };
