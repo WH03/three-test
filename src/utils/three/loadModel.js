@@ -15,8 +15,7 @@ class LoadModel {
         this.loaderGLTF.setDRACOLoader(this.dracoLoader) // 设置draco模型加载器
 
         this.pathIndex = 1000//小车的运动轨迹点索引
-        // this.clock = new THREE.Clock();
-        this.sphereMesh = null
+        // this.sphereMesh = null
     }
 
     // 加载模型
