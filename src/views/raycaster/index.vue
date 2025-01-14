@@ -1,3 +1,11 @@
+<!--
+ * @Author: kkk 847666794www@163.com
+ * @Date: 2025-01-13 10:54:54
+ * @LastEditors: kkk 847666794www@163.com
+ * @LastEditTime: 2025-01-14 17:33:38
+ * @FilePath: \three-test\src\views\raycaster\index.vue
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 <template>
     <div class="canvasbox">
         <div class="canvasDom" id="canvasDom"></div>
@@ -14,7 +22,7 @@
 <script setup>
     import { ref, onMounted, onUnmounted } from 'vue';
     import * as THREE from "three";
-    import {baseScene} from "@/utils/three/baseScene.js";
+    import { baseScene } from "@/utils/three/baseScene.js";
     import { clearScene, disposeChild } from "@/utils/three/clearScene.js";
 
 

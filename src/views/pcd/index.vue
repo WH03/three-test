@@ -12,7 +12,8 @@
 
 <script setup>
     import { ref, onMounted, onUnmounted } from 'vue';
-    import { baseScene } from "@/utils/three/BaseScene.js";
+    import baseScene from "@/utils/three/BaseScene.js";
+    import { LoadModel } from '@/utils/three/LoadModel.js'
     // three
     import * as THREE from "three";
     // console.log(`output->THREE`, THREE)
@@ -23,8 +24,10 @@
     let pcdModel = ref('/models/pcd/default/GlobalMap.pcd')
     let gltfModel = ref('/models/gltf/Soldier.glb')
 
+    let clock = new THREE.Clock();
+
     let pointList = [
-        new THREE.Vector3(-3, 4, 2),
+        new THREE.Vector3(0, 0, 0),
         new THREE.Vector3(3, 4, 2),
         new THREE.Vector3(3, 4, -2),
         new THREE.Vector3(5, 2, -2),
@@ -33,39 +36,75 @@
     let startMove = false
     const curveMove = () => {
         startMove = true
-        baseThree.addCurveLine(pointList);
+        // baseThree.addCurveLine(pointList);
+        modelLoader.addCurveLine(pointList)
+        // 加载 gltf 模型
+        // modelLoader.loadGLTFModel(gltfModel.value, (model) => {
+        //     model.scene.scale.set(3, 3, 3)
+        //     model.scene.rotation.set(0, Math.PI, 0)
+
+        //     model.scene.position.set(pointList[0].x, pointList[0].y, pointList[0].z)   // 模型位置
+        //     modelLoader.startAnimation(model, 3)
+
+        // }, (xhr) => {
+        // })
     }
 
+    let modelLoader = null
 
+
+    let clickPoints = []
     onMounted(async () => {
         baseThree = await new baseScene('#canvasDom');
-        // baseThree.init()
+        modelLoader = new LoadModel(baseThree)
+
+        // 加载 gltf 模型
+        // modelLoader.loadGLTFModel(gltfModel.value, (model) => {
+        //     model.scene.scale.set(3, 3, 3)
+        //     model.scene.rotation.set(0, Math.PI, 0)
+        //     model.scene.position.set(pointList[0].x, pointList[0].y, pointList[0].z)   // 模型位置
+        //     // baseThree.scene.add(model.scene);
+        //     modelLoader.startAnimation(model, 3)
+
+        // }, (xhr) => {
+        // })
+
         // 加载 PCD 模型
-        baseThree.loadPCDModel(pcdModel.value,
-            { x: 1, y: 1, z: 1 },  // scale
-            { x: Math.PI / 2, y: Math.PI, z: 0 },  // rotation
-            // { x: 0, y: 0, z: 0 }   // position
-        );
-        baseThree.initRaycaster('click', baseThree.scene.children);
+        modelLoader.loadPCDModel(pcdModel.value, (model) => {
+            model.geometry.center();
+            model.rotation.set(Math.PI / 2, Math.PI, 0)
+            model.position.set(0, 0, 0);
+        }, (xhr) => {
+        })
+
+        baseThree.initRaycaster('click', (intersect) => {
+            // console.log(`output->intersect`, intersect)
+            modelLoader.loadSphere(intersect.point, true);//添加圆点
+            clickPoints.push(intersect.point)//保存原点
+            modelLoader.loadLine(clickPoints)//画线
+        });
+
+
+
 
         // console.log(baseThree)
-        // baseThree.initAxesHelper()
+        baseThree.initAxesHelper()
         baseThree.addStats()
 
         // 动画效果
         baseThree.sceneAnimation(() => {
-            // const delta = clock.getDelta()
-            // baseThree.controls.update()
-            // baseThree.update();
-            // baseThree.stats.update();
-            // baseThree.renderer.render(baseThree.scene, baseThree.camera)
-            // if (baseThree.mixer) {
-            //     baseThree.mixer.update(delta);
-            // }
+            const delta = clock.getDelta()
+            baseThree.controls.update()
+            baseThree.update();
+            baseThree.stats.update();
+            baseThree.renderer.render(baseThree.scene, baseThree.camera)
 
+            if (baseThree.mixer) {
+                baseThree.mixer.update(delta);
+            }
 
             if (startMove) {
-                baseThree.modelMove()
+                modelLoader.modelMove()
             }
         })
 
