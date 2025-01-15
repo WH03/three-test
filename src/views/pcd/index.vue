@@ -84,10 +84,11 @@
         // 动画效果
         baseThree.sceneAnimation(() => {
             const delta = clock.getDelta()
-            baseThree.controls.update()
-            baseThree.update();
-            baseThree.stats.update();
-            baseThree.renderer.render(baseThree.scene, baseThree.camera)
+
+            // baseThree.update();
+            // baseThree.controls.update()
+
+            // baseThree.renderer.render(baseThree.scene, baseThree.camera)
 
             if (baseThree.mixer) {
                 baseThree.mixer.update(delta);
@@ -107,7 +108,7 @@
     onUnmounted(() => {
         if (baseThree) {
             // clearScene(baseThree.scene.children, baseThree.scene);  // 清除场景中的所有对象
-            baseThree.clearScene(baseThree.scene.children);
+            baseThree.clearScene(baseThree.scene);
             console.log(`output->baseThree`, baseThree)
             console.log('Scene cleared!');
         }

@@ -32,18 +32,13 @@ export default class baseScene {
   }
 
   init() {
-    //初始化场景
-    this.initScene()
-    //初始化相机
-    this.initCamera()
-    //初始化渲染器
-    this.initRender()
+    this.initScene()    //初始化场景
+    this.initCamera()//初始化相机
+    this.initRender()//创建渲染器
     this.initControls()//控制器
     this.initAmbientLight()//环境光
     this.initDirectionalLight()//平行光
-    this.update()//更新
   }
-
 
   // 创建场景
   initScene() {
@@ -62,12 +57,9 @@ export default class baseScene {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(this.width, this.height);
-    // this.renderer.setClearColor('#add8e6');
     this.renderer.setClearColor('#708090');
-
     this.container.appendChild(this.renderer.domElement);
   }
-
 
   // 更新渲染器
   update() {
@@ -76,24 +68,18 @@ export default class baseScene {
 
   // 动画帧
   sceneAnimation(callback) {
+    this.update();
     callback();//回调
     this.frameId = requestAnimationFrame(() => this.sceneAnimation(callback));
-    this.update();
     this.controls.update();
-    this.stats.update();
-    this.renderer.render(this.scene, this.camera)
 
-    // const delta = this.clock.getDelta();
-    // if (this.mixer) {
-    //   this.mixer.update(delta);
-    // } else {
-    //   this.mixer?.stopAllAction();
-    // }
+    this.stats?.update();
+
   }
 
   addStats() {
     this.stats = new Stats();
-    this.stats.setMode(0)
+    // this.stats.setMode(0)
     // 设置监视器位置
     this.stats.domElement.style.position = 'absolute'
     this.stats.domElement.style.left = '95%'
@@ -144,54 +130,9 @@ export default class baseScene {
     this.controls.enableDamping = true
   }
 
-
-  // // 鼠标事件
-  // initRaycaster(eventType) {
-  //   this.raycaster = new THREE.Raycaster();
-  //   this.container.addEventListener(eventType, this.rayEventFn.bind(this,this), false);
-  // }
-
-  // rayEventFn(event) {
-  //   const { width, height, top, left } = this.container.getBoundingClientRect();
-  //   const mouse = {
-  //     x: ((event.clientX - left) / width) * 2 - 1,
-  //     y: -((event.clientY - top) / height) * 2 + 1,
-  //   };
-  //   this.raycaster.setFromCamera(mouse, this.camera);// 设置射线
-
-  //   // let intersects = this.raycaster.intersectObjects(this.scene.children, true)[0];// 射线与模型相交
-  //   let intersect = this.raycaster.intersectObjects(models, true)[0];// 射线与模型相交
-  //   this.changeSelect(intersect)
-  // }
-
-  // // 修改颜色
-  // changeSelect(intersectObject) {
-  //   // 若之前已有模型被选择，且不等于当前所选择的模型，取消之前选择的的高亮,还原为原来的颜色
-  //   if (this.currentModel && this.currentModel !== intersectObject) {
-  //     this.currentModel.object.material = this.currentModel.object._orgMaterial;
-  //   }
-
-  //   if (intersectObject) {//若当前所选对象不为空：
-  //     if (intersectObject !== this.currentModel) {//若当前所选对象不等于上一次所选对象：
-  //       this.currentModel = intersectObject;  //获取选中模型
-  //       let curObject = this.currentModel.object
-  //       let _orgMaterial = this.currentModel.object.material; // 存一下原来的材质 
-  //       curObject._orgMaterial = _orgMaterial
-
-  //       curObject.currentHex = curObject.material.emissive.getHex();
-  //       curObject.material = _orgMaterial.clone();
-  //       curObject.material.emissive.setHex('0x00FF00');//  将模型高亮。
-  //     }
-  //   } else  {
-  //     this.currentModel = null//置空当前所选
-  //   }
-  // }
-
   // 鼠标事件
   initRaycaster(eventType, callback) {
     this.raycaster = new THREE.Raycaster();
-    // this.addLine()
-    // this.addSphere({ x: 0, y: 0, z: 0 }, false)
     this.container.addEventListener(eventType, (event) => this.rayEventFn(callback, event), false);
   }
 
@@ -275,19 +216,6 @@ export default class baseScene {
 
 
 
-  // 释放资源
-  // dispose() {
-  //   if (this.renderAnimation) {
-  //     cancelAnimationFrame(this.renderAnimation);
-  //   }
-  //   if (this.renderer) {
-  //     this.renderer.dispose();
-  //   }
-  //   if (this.camera) {
-  //     this.camera.clear();
-  //   }
-  // }
-
   clearScene(myObjects) {
     // 从 scene 中删除模型并释放内存
     if (myObjects.length > 0) {
@@ -308,13 +236,10 @@ export default class baseScene {
         this.scene.remove(currObj);
       }
     }
-
-    // 销毁渲染器
-    if (this.renderer) {
-      this.renderer.dispose();
-      console.log("Renderer disposed");
+    if (this.renderAnimation) {
+      cancelAnimationFrame(this.renderAnimation);
     }
-
+    this.controls && this.controls.dispose();
     // 销毁相机
     if (this.camera) {
       if (this.camera instanceof THREE.PerspectiveCamera || this.camera instanceof THREE.OrthographicCamera) {
@@ -322,6 +247,26 @@ export default class baseScene {
         this.camera.clear();
       }
     }
+    // 销毁帧率监测
+    if (this.stats) {
+      this.container.removeChild(this.stats.domElement);
+      this.stats = null;
+    }
+    // 销毁渲染器
+    if (this.renderer) {
+      this.renderer.dispose();
+      this.renderer.forceContextLoss();
+      this.renderer.setAnimationLoop(null);
+      this.renderer.domElement = null;
+      this.renderer.content = null;
+      console.log('清空资源', this.renderer.info);
+      // this.renderer = null;
+    }
+
+
+
+
+    window.removeEventListener("resize", () => this.onResize());
   }
 
   /**
