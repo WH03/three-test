@@ -21,7 +21,6 @@ export default class baseScene {
     this.modelsArr = [];//模型数组
     this.mixer = null
     this.pathIndex = 1000//小车的运动轨迹点索引
-    // this.clock = new THREE.Clock();
 
     this.sphereMesh = null
     this.clickPoints = []
@@ -43,9 +42,6 @@ export default class baseScene {
     this.initAmbientLight()//环境光
     this.initDirectionalLight()//平行光
     this.update()//更新
-
-    // this.initAxesHelper()//辅助坐标轴
-    // this.sceneAnimation()//场景动画
   }
 
 
@@ -237,59 +233,110 @@ export default class baseScene {
 
 
 
-  // // 修改颜色
-  // changeSelect(intersectObject) {
-  //   if (this.currentModel && this.currentModel !== intersectObject) {
-  //     // 取消之前选择的模型的高亮，恢复原材质
-  //     this.resetModelMaterial(this.currentModel.object);
-  //   }
+  // 修改颜色
+  changeSelect(intersectObject) {
+    if (this.currentModel && this.currentModel !== intersectObject) {
+      // 取消之前选择的模型的高亮，恢复原材质
+      this.resetModelMaterial(this.currentModel.object);
+    }
 
-  //   if (intersectObject) {
-  //     // 若选中的对象与当前选中的对象不同，进行高亮
-  //     if (intersectObject !== this.currentModel) {
-  //       this.currentModel = intersectObject;
-  //       const curObject = this.currentModel.object;
-  //       this.highlightModelMaterial(curObject); // 高亮选中的模型
-  //     }
-  //   } else {
-  //     // 取消当前选择
-  //     this.currentModel = null;
-  //   }
-  // }
+    if (intersectObject) {
+      // 若选中的对象与当前选中的对象不同，进行高亮
+      if (intersectObject !== this.currentModel) {
+        this.currentModel = intersectObject;
+        const curObject = this.currentModel.object;
+        this.highlightModelMaterial(curObject); // 高亮选中的模型
+      }
+    } else {
+      // 取消当前选择
+      this.currentModel = null;
+    }
+  }
 
-  // // 恢复原材质
-  // resetModelMaterial(object) {
-  //   if (object._orgMaterial) {
-  //     object.material = object._orgMaterial; // 恢复原材质
-  //     delete object._orgMaterial; // 删除缓存的原材质
-  //   }
-  // }
+  // 恢复原材质
+  resetModelMaterial(object) {
+    if (object._orgMaterial) {
+      object.material = object._orgMaterial; // 恢复原材质
+      delete object._orgMaterial; // 删除缓存的原材质
+    }
+  }
 
-  // // 高亮选中模型
-  // highlightModelMaterial(object) {
-  //   if (!object._orgMaterial) {
-  //     // 缓存原材质
-  //     object._orgMaterial = object.material;
-  //   }
-  //   // 进行高亮显示
-  //   object.currentHex = object.material.emissive.getHex();// 获取原材质的高亮颜色
-  //   object.material = object._orgMaterial.clone();// 克隆材质
-  //   object.material.emissive.setHex(0x00FF00); // 高亮颜色，绿色
-  // }
+  // 高亮选中模型
+  highlightModelMaterial(object) {
+    if (!object._orgMaterial) {
+      // 缓存原材质
+      object._orgMaterial = object.material;
+    }
+    // 进行高亮显示
+    object.currentHex = object.material.emissive.getHex();// 获取原材质的高亮颜色
+    object.material = object._orgMaterial.clone();// 克隆材质
+    object.material.emissive.setHex(0x00FF00); // 高亮颜色，绿色
+  }
 
 
 
   // 释放资源
-  dispose() {
-    if (this.renderAnimation) {
-      cancelAnimationFrame(this.renderAnimation);
+  // dispose() {
+  //   if (this.renderAnimation) {
+  //     cancelAnimationFrame(this.renderAnimation);
+  //   }
+  //   if (this.renderer) {
+  //     this.renderer.dispose();
+  //   }
+  //   if (this.camera) {
+  //     this.camera.clear();
+  //   }
+  // }
+
+  clearScene(myObjects) {
+    // 从 scene 中删除模型并释放内存
+    if (myObjects.length > 0) {
+      for (let i = 0; i < myObjects.length; i++) {
+        const currObj = myObjects[i];
+
+        // 判断类型
+        if (currObj instanceof THREE.Scene) {
+          const children = currObj.children;
+          for (let i = 0; i < children.length; i++) {
+            this.deleteGroup(children[i]);
+          }
+        } else {
+          this.deleteGroup(currObj);
+        }
+
+        // 从 scene 中删除对象
+        this.scene.remove(currObj);
+      }
     }
+
+    // 销毁渲染器
     if (this.renderer) {
       this.renderer.dispose();
+      console.log("Renderer disposed");
     }
+
+    // 销毁相机
     if (this.camera) {
-      this.camera.clear();
+      if (this.camera instanceof THREE.PerspectiveCamera || this.camera instanceof THREE.OrthographicCamera) {
+        // 释放相关的相机资源
+        this.camera.clear();
+      }
     }
+  }
+
+  /**
+   * 删除group内的所有对象并释放内存
+   * @param group: 要清除的模型组
+   */
+  deleteGroup(group) {
+    if (!group) return;
+    // 删除掉所有的模型组内的 mesh
+    group.traverse(function (item) {
+      if (item instanceof THREE.Mesh) {
+        item.geometry.dispose(); // 删除几何体
+        item.material.dispose(); // 删除材质
+      }
+    });
   }
 
 

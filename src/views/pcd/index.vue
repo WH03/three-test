@@ -16,8 +16,6 @@
     import { LoadModel } from '@/utils/three/LoadModel.js'
     // three
     import * as THREE from "three";
-    // console.log(`output->THREE`, THREE)
-    import { clearScene, disposeChild } from "@/utils/three/ClearScene.js";
 
     let baseThree;
     // 加载模型
@@ -42,11 +40,9 @@
         // modelLoader.loadGLTFModel(gltfModel.value, (model) => {
         //     model.scene.scale.set(3, 3, 3)
         //     model.scene.rotation.set(0, Math.PI, 0)
-
         //     model.scene.position.set(pointList[0].x, pointList[0].y, pointList[0].z)   // 模型位置
         //     modelLoader.startAnimation(model, 3)
 
-        // }, (xhr) => {
         // })
     }
 
@@ -57,16 +53,14 @@
     onMounted(async () => {
         baseThree = await new baseScene('#canvasDom');
         modelLoader = new LoadModel(baseThree)
-
-        // 加载 gltf 模型
+        console.log(`output->@@@baseThree`, baseThree)
+        // // 加载 gltf 模型
         // modelLoader.loadGLTFModel(gltfModel.value, (model) => {
         //     model.scene.scale.set(3, 3, 3)
         //     model.scene.rotation.set(0, Math.PI, 0)
         //     model.scene.position.set(pointList[0].x, pointList[0].y, pointList[0].z)   // 模型位置
         //     // baseThree.scene.add(model.scene);
-        //     modelLoader.startAnimation(model, 3)
-
-        // }, (xhr) => {
+        //     // modelLoader.startAnimation(model, 3)
         // })
 
         // 加载 PCD 模型
@@ -74,20 +68,16 @@
             model.geometry.center();
             model.rotation.set(Math.PI / 2, Math.PI, 0)
             model.position.set(0, 0, 0);
-        }, (xhr) => {
         })
 
         baseThree.initRaycaster('click', (intersect) => {
-            // console.log(`output->intersect`, intersect)
+            console.log(`output->intersect`, intersect)
             modelLoader.loadSphere(intersect.point, true);//添加圆点
             clickPoints.push(intersect.point)//保存原点
             modelLoader.loadLine(clickPoints)//画线
+            // baseThree.changeSelect(intersect)
         });
 
-
-
-
-        // console.log(baseThree)
         baseThree.initAxesHelper()
         baseThree.addStats()
 
@@ -108,8 +98,6 @@
             }
         })
 
-
-
     });
 
 
@@ -119,7 +107,7 @@
     onUnmounted(() => {
         if (baseThree) {
             // clearScene(baseThree.scene.children, baseThree.scene);  // 清除场景中的所有对象
-            clearScene(baseThree.scene.children, baseThree.scene, baseThree.camera, baseThree.renderer);
+            baseThree.clearScene(baseThree.scene.children);
             console.log(`output->baseThree`, baseThree)
             console.log('Scene cleared!');
         }

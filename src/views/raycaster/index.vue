@@ -23,7 +23,6 @@
     import { ref, onMounted, onUnmounted } from 'vue';
     import * as THREE from "three";
     import { baseScene } from "@/utils/three/baseScene.js";
-    import { clearScene, disposeChild } from "@/utils/three/clearScene.js";
 
 
 
@@ -71,7 +70,7 @@
     // 销毁
     onUnmounted(() => {
         if (baseThree) {
-            clearScene(baseThree.scene.children, baseThree.scene, baseThree.camera, baseThree.renderer);
+            baseThree.clearScene(baseThree.scene.children);
         }
     })
 </script>

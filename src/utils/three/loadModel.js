@@ -111,8 +111,6 @@ class LoadModel {
         dracoLoader.preload();
         gltfLoader.setDRACOLoader(dracoLoader);
         gltfLoader.load("/models/gltf/Soldier.glb", (gltf) => {
-            // gltfLoader.load("/models/gltf/RobotExpressive/RobotExpressive.glb", (gltf) => {
-
             this.robot = gltf.scene;
             console.log(`output-> gltf.scene`, gltf.scene)
             // this.robot.scale.set(0.1, 0.1, 0.1)
@@ -149,29 +147,7 @@ class LoadModel {
             this.robot.lookAt(lookAtVec);//设置agv的模型朝向为切线的方向
         }
     }
-
-
-
-
 }
-
-
-
-
-
-// function startAnimation(i) {
-
-// }
-
-// // 绘制直线
-// function addLine(points, color) {
-//     const material = new THREE.LineBasicMaterial({
-//         color: 0x0000ff
-//     });
-//     const geometry = new THREE.BufferGeometry().setFromPoints(points);
-//     const line = new THREE.Line(geometry, material);
-//     this.baseThree.add(line);
-// }
 
 
 
