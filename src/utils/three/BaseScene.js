@@ -4,6 +4,7 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";//DRACOLoad
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"; //GLTF模块
 import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';//PCDLoader模块
 import Stats from 'three/addons/libs/stats.module.js';
+import TWEEN from "three/examples/jsm/libs/tween.module.js";
 
 export default class baseScene {
   constructor(domSelector) {
@@ -24,6 +25,8 @@ export default class baseScene {
 
     this.sphereMesh = null
     this.clickPoints = []
+
+
 
     this.gltfModel = null;
     // 屏幕自适应
@@ -74,6 +77,7 @@ export default class baseScene {
     this.controls.update();
 
     this.stats?.update();
+    this.tween?.update();
 
   }
 
@@ -85,6 +89,47 @@ export default class baseScene {
     this.stats.domElement.style.left = '95%'
     this.stats.domElement.style.top = '0px'
     this.container.appendChild(this.stats.domElement);
+  }
+
+
+  flyTo(newPos, newTarget, callBack) {
+    this.tween = new TWEEN.Tween({
+      x1: this.camera.position.x, // 相机x
+      y1: this.camera.position.y,  // 相机y
+      z1: this.camera.position.z, // 相机z
+      x2: this.controls.target.x, // 控制点的中心点x
+      y2: this.controls.target.y, // 控制点的中心点y
+      z2: this.controls.target.z // 控制点的中心点z
+    })
+    this.tween.to({
+      x1: newPos.x,
+      y1: newPos.y,
+      z1: newPos.z,
+      // x2: newTarget?.x || 0,
+      // y2: newTarget?.y || 0,
+      // z2: newTarget?.z || 0
+    }, 2000)
+    this.tween.onUpdate(object => {
+      this.camera.position.x = object.x1
+      this.camera.position.y = object.y1
+      this.camera.position.z = object.z1
+      // this.controls.target.x = object.x2
+      // this.controls.target.y = object.y2
+      // this.controls.target.z = object.z2
+      // this.controls.update()
+    })
+    this.tween.onComplete(() => {
+      // this.controls.enabled = true
+      // this.controls.update();
+      callBack && callBack()
+    })
+    this.tween.easing(TWEEN.Easing.Cubic.InOut)
+    this.tween.start()
+  }
+
+  // 加载环境贴图
+  loadEnvMap(cubeMaps) {
+    this.envLoader = new THREE.CubeTextureLoader().load(cubeMaps)
   }
 
 

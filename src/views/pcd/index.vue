@@ -20,7 +20,7 @@
     let baseThree;
     // 加载模型
     let pcdModel = ref('/models/pcd/default/GlobalMap.pcd')
-    let gltfModel = ref('/models/gltf/Soldier.glb')
+    let gltfModel = ref('/models/robot.glb')
 
     let clock = new THREE.Clock();
 
@@ -36,6 +36,9 @@
         startMove = true
         // baseThree.addCurveLine(pointList);
         modelLoader.addCurveLine(pointList)
+        let newPos = { x: -2.4837260836273516, y: 2.821124069329464, z: -4.7607499148596535 }
+        baseThree.flyTo(newPos)
+
         // 加载 gltf 模型
         // modelLoader.loadGLTFModel(gltfModel.value, (model) => {
         //     model.scene.scale.set(3, 3, 3)
@@ -48,12 +51,19 @@
 
     let modelLoader = null
 
-
+    let cubeImg = ref([
+        'img/Park3Med/px.jpg',
+        'img/Park3Med/nx.jpg',
+        'img/Park3Med/py.jpg',
+        'img/Park3Med/ny.jpg',
+        'img/Park3Med/pz.jpg',
+        'img/Park3Med/nz.jpg',
+    ])
     let clickPoints = []
     onMounted(async () => {
         baseThree = await new baseScene('#canvasDom');
         modelLoader = new LoadModel(baseThree)
-        console.log(`output->@@@baseThree`, baseThree)
+        baseThree.loadEnvMap(cubeImg.value)
         // // 加载 gltf 模型
         // modelLoader.loadGLTFModel(gltfModel.value, (model) => {
         //     model.scene.scale.set(3, 3, 3)
@@ -72,14 +82,17 @@
 
         baseThree.initRaycaster('click', (intersect) => {
             console.log(`output->intersect`, intersect)
-            modelLoader.loadSphere(intersect.point, true);//添加圆点
-            clickPoints.push(intersect.point)//保存原点
-            modelLoader.loadLine(clickPoints)//画线
-            // baseThree.changeSelect(intersect)
+            // modelLoader.loadSphere(intersect.point, true);//添加圆点
+            // clickPoints.push(intersect.point)//保存原点
+            // modelLoader.loadLine(clickPoints)//画线
+            baseThree.changeSelect(intersect)
         });
 
         baseThree.initAxesHelper()
         baseThree.addStats()
+
+
+
 
         // 动画效果
         baseThree.sceneAnimation(() => {

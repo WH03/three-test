@@ -11,7 +11,7 @@ class LoadModel {
         this.loaderGLTF = new GLTFLoader() // 加载gltf模型
         // this.loaderFBX = new FBXLoader() // 加载fbx模型
         this.dracoLoader = new DRACOLoader() // 加载draco模型(加载基于Google Draco压缩格式的3D模型的类)
-        this.dracoLoader.setDecoderPath(`draco/gltf/`); // 设置draco模型解码器路径
+        this.dracoLoader.setDecoderPath(`/draco/gltf/`); // 设置draco模型解码器路径
         this.loaderGLTF.setDRACOLoader(this.dracoLoader) // 设置draco模型加载器
 
         this.pathIndex = 1000//小车的运动轨迹点索引
@@ -104,26 +104,37 @@ class LoadModel {
 
 
 
-        const gltfLoader = new GLTFLoader();
-        const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath(`draco/gltf/`);
-        dracoLoader.setDecoderConfig({ type: "js" });
-        dracoLoader.preload();
-        gltfLoader.setDRACOLoader(dracoLoader);
-        gltfLoader.load("/models/gltf/Soldier.glb", (gltf) => {
-            this.robot = gltf.scene;
-            console.log(`output-> gltf.scene`, gltf.scene)
-            // this.robot.scale.set(0.1, 0.1, 0.1)
-            // this.robot.rotation.set(Math.PI, Math.PI, Math.PI)
-            // model.scene.position.set(pointList[0].x, pointList[0].y, pointList[0].z)   // 模型位置
-            this.robot.position.set(pathPoints[0].x, pathPoints[0].y, pathPoints[0].z)   // 模型位置
-            this.baseThree.scene.add(this.robot)   // 加入场景
+        // const gltfLoader = new GLTFLoader();
+        // const dracoLoader = new DRACOLoader();
+        // dracoLoader.setDecoderPath(`draco/gltf/`);
+        // dracoLoader.setDecoderConfig({ type: "js" });
+        // dracoLoader.preload();
+        // gltfLoader.setDRACOLoader(dracoLoader);
+        // // gltfLoader.load("/models/gltf/Soldier.glb", (gltf) => {
+        // gltfLoader.load("/models/gltf/robot4-min.glb", (gltf) => {
+        //     this.robot = gltf.scene;
+        //     console.log(`output-> gltf.scene`, gltf.scene)
+        //     this.robot.position.set(pathPoints[0].x, pathPoints[0].y, pathPoints[0].z)   // 模型位置
+        //     this.baseThree.scene.add(this.robot)   // 加入场景
 
-            this.baseThree.mixer = new THREE.AnimationMixer(this.robot);
-            // console.log(`output->gltf`, gltf)
-            this.baseThree.mixer.clipAction(gltf.animations[3]).play();
-            // this.mixer.clipAction(gltf.animations[0]).play();
+        //     // this.baseThree.mixer = new THREE.AnimationMixer(this.robot);
+        //     // // console.log(`output->gltf`, gltf)
+        //     // this.baseThree.mixer.clipAction(gltf.animations[3]).play();
+        //     // this.mixer.clipAction(gltf.animations[0]).play();
+        // })
+
+
+        // 加载 gltf 模型
+        this.loadGLTFModel('/models/gltf/robot4-min.glb', (model) => {
+            this.robot = model.scene;
+            console.log(`output->this.robot`, this.robot)
+            this.robot.scale.set(3, 3, 3)
+            // model.scene.rotation.set(0, Math.PI, 0)
+            this.robot.position.set(pathPoints[0].x, pathPoints[0].y, pathPoints[0].z)   // 模型位置
+            // baseThree.scene.add(model.scene);
+            // modelLoader.startAnimation(model, 3)
         })
+
 
 
 
