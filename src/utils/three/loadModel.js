@@ -156,6 +156,13 @@ class LoadModel {
             const tangent = this.curveLine.getTangentAt(sphereCurveIndex); // 返回一个点t在曲线上位置向量的法线向量（getTangentAt是返回曲线上某个点的切线）
             const lookAtVec = tangent.add(positionVec);// 位置向量和切线向量相加即为所需朝向的点向量
             this.robot.lookAt(lookAtVec);//设置agv的模型朝向为切线的方向
+
+            // let newPos = positionVec
+            // newPos.x += 3
+            // newPos.y += 5
+            // newPos.z += 2
+            // this.baseThree.camera.position.copy(newPos);
+            // this.baseThree.camera.lookAt(lookAtVec);
         }
     }
 }
