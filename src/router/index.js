@@ -8,19 +8,20 @@ const routes = [
     component: () => import("../views/pcd/index.vue"),
   },
   {
-    path: "/test",
-    name: "test",
-    meta: { title: "测试" },
-    component: () => import("../views/test/index.vue"),
-  },
-  {
     path: "/raycaster",
     name: "raycaster",
     meta: { title: "鼠标交互" },
     component: () => import("../views/raycaster/index.vue"),
   },
 
-  
+  {
+    path: "/clipping",
+    name: "clipping",
+    meta: { title: "裁切" },
+    component: () => import("../views/clipping/index.vue"),
+  },
+
+
 ];
 
 const router = createRouter({
