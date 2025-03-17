@@ -6,7 +6,7 @@ import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';//PCDLoader模块
 import Stats from 'three/addons/libs/stats.module.js';
 import TWEEN from "three/examples/jsm/libs/tween.module.js";
 
-export default class baseScene {
+export default class BaseScene {
   constructor(domSelector) {
     this.container = document.querySelector(domSelector);
     const { width, height } = this.container.getBoundingClientRect();
@@ -160,7 +160,7 @@ export default class baseScene {
   //添加平行光
   initDirectionalLight(intensity = 1, color = 0xffffff) {
     let directionalLight = new THREE.DirectionalLight({ intensity, color });
-    directionalLight.position.set(100, 100, 0);
+    directionalLight.position.set(100, 100, 100);
     this.scene.add(directionalLight);
     return directionalLight; //可以在外部修改一下他的位置等属性
   }
@@ -220,7 +220,7 @@ export default class baseScene {
 
 
   // 修改颜色
-  changeSelect(intersectObject) {
+  changeSelect(intersectObject,colors) {
     if (this.currentModel && this.currentModel !== intersectObject) {
       // 取消之前选择的模型的高亮，恢复原材质
       this.resetModelMaterial(this.currentModel.object);
@@ -231,7 +231,7 @@ export default class baseScene {
       if (intersectObject !== this.currentModel) {
         this.currentModel = intersectObject;
         const curObject = this.currentModel.object;
-        this.highlightModelMaterial(curObject); // 高亮选中的模型
+        this.highlightModelMaterial(curObject,colors); // 高亮选中的模型
       }
     } else {
       // 取消当前选择
@@ -248,7 +248,7 @@ export default class baseScene {
   }
 
   // 高亮选中模型
-  highlightModelMaterial(object) {
+  highlightModelMaterial(object,colors) {
     if (!object._orgMaterial) {
       // 缓存原材质
       object._orgMaterial = object.material;
@@ -256,7 +256,7 @@ export default class baseScene {
     // 进行高亮显示
     object.currentHex = object.material.emissive.getHex();// 获取原材质的高亮颜色
     object.material = object._orgMaterial.clone();// 克隆材质
-    object.material.emissive.setHex(0x00FF00); // 高亮颜色，绿色
+    object.material.emissive.setHex(colors); // 高亮颜色，绿色
   }
 
 

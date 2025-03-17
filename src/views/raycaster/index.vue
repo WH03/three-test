@@ -9,9 +9,9 @@
 <template>
     <div class="canvasbox">
         <div class="canvasDom" id="canvasDom"></div>
-        <a-space>
+        <!-- <a-space>
             <a-button type="primary" danger @click="clearObjects">清除</a-button>
-        </a-space>
+        </a-space> -->
     </div>
 
 
@@ -20,78 +20,94 @@
 </template>
 
 <script setup>
-    import { ref, onMounted, onUnmounted } from 'vue';
-    import * as THREE from "three";
-    import { baseScene } from "@/utils/three/baseScene.js";
+import { ref, onMounted, onUnmounted } from 'vue';
+import * as THREE from "three";
+import BaseScene from "@/utils/three/BaseScene.js";
+import { LoadModel } from '@/utils/three/LoadModel.js'
 
 
 
-    let baseThree;
-
-    let gltfModel1 = ref('/models/DJ.glb')
-    let gltfModel3 = ref('/models/gltf/shiji-v4.glb')
-    let gltfModel4 = ref('models/20240222/body.gltf')
-
-
-
-    onMounted(() => {
-        baseThree = new baseScene('#canvasDom');
-        // baseThree.loadCubeModel(0xff00cc, 2, 2, 2, { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { x: -5, y: 0, z: 0 });
-
-        // baseThree.loadCubeModel(0xffff00, 3, 3, 3, { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 });
-
-        // baseThree.loadGLTFModel(gltfModel1.value,
-        //     { x: 1, y: 1, z: 1 },  // scale
-        //     { x: 0, y: 0, z: 0 },  // rotation
-        //     { x: 0, y: 0, z: 0 }   // position
-        // );
-        // baseThree.loadGLTFModel(gltfModel3.value,
-        //     { x: 1, y: 1, z: 1 },  // scale
-        //     { x: 0, y: 0, z: 0 },  // rotation
-        //     { x: 2, y: 0, z: 0 }   // position
-        // );
-        // baseThree.loadGLTFModel(gltfModel4.value,
-        //     { x: 10, y: 10, z: 10 },  // scale
-        //     { x: 0, y: 0, z: 0 },  // rotation
-        //     { x: 3, y: -5, z: 0 }   // position
-        // );
+let baseThree;
+let modelLoader = null
+let gltfModel1 = ref('/models/DJ.glb')
+let gltfModel3 = ref('/models/gltf/shiji-v4.glb')
+let gltfModel4 = ref('models/20240222/body.gltf')
+// let gltfModel5 = ref('models/testModel.glb')
+// let gltfModel5 = ref('models/无标题.glb')
+let gltfModel5 = ref('models/雕刻单元-压缩.glb')
+let clock = new THREE.Clock();
 
 
-
-        // baseThree.initRaycaster('mousemove', baseThree.scene.children);
-        // baseThree.initRaycaster('mousemove', baseThree.modelsArr);
-        // baseThree.initRaycaster('mousemove', baseThree.modelsArr);
-
-        // console.log(`output-> baseThree.modelsArr`, baseThree.modelsArr);
-
-        // baseThree.initRaycaster('click', baseThree.scene.children);
-    });
-
-    // 销毁
-    onUnmounted(() => {
-        if (baseThree) {
-            baseThree.clearScene(baseThree.scene.children);
-        }
+onMounted(() => {
+    baseThree = new BaseScene('#canvasDom');
+    modelLoader = new LoadModel(baseThree);
+    // 加载 gltf 模型
+    modelLoader.loadGLTFModel(gltfModel5.value, (model) => {
+        // model.scene.scale.set(3, 3, 3)
+        // model.scene.rotation.set(0, Math.PI, 0)
+        // baseThree.scene.add(model.scene);
+        // modelLoader.startAnimation(model, 3)
     })
+
+    // baseThree.initRaycaster('mousemove', (intersect) => {
+    //     console.log(`output->intersect`, intersect)
+    //     // modelLoader.loadSphere(intersect.point, true);//添加圆点
+    //     // clickPoints.push(intersect.point)//保存原点
+    //     // modelLoader.loadLine(clickPoints)//画线
+    //     baseThree.changeSelect(intersect, '0xff0000')
+    // });
+
+
+
+    baseThree.initAxesHelper()
+    baseThree.addStats()
+
+
+
+
+    // 动画效果
+    baseThree.sceneAnimation(() => {
+        const delta = clock.getDelta()
+
+        // baseThree.update();
+        // baseThree.controls.update()
+
+        // baseThree.renderer.render(baseThree.scene, baseThree.camera)
+
+        if (baseThree.mixer) {
+            baseThree.mixer.update(delta);
+        }
+
+    })
+
+
+});
+
+// 销毁
+onUnmounted(() => {
+    // if (baseThree) {
+    //     baseThree.clearScene(baseThree.scene.children);
+    // }
+})
 </script>
 
 <style scoped lang="scss">
-    .canvasbox {
-        width: 100%;
-        height: 100%;
-        position: relative;
-        display: flex;
-        box-sizing: border-box;
-    }
+.canvasbox {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    box-sizing: border-box;
+}
 
-    .ant-space {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-    }
+.ant-space {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
 
-    .canvasDom {
-        width: 100%;
-        height: 100%;
-    }
+.canvasDom {
+    width: 100%;
+    height: 100%;
+}
 </style>

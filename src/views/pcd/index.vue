@@ -12,7 +12,7 @@
 
 <script setup>
     import { ref, onMounted, onUnmounted } from 'vue';
-    import baseScene from "@/utils/three/BaseScene.js";
+    import BaseScene from "@/utils/three/BaseScene.js";
     import { LoadModel } from '@/utils/three/LoadModel.js'
     // three
     import * as THREE from "three";
@@ -61,7 +61,7 @@
     ])
     let clickPoints = []
     onMounted(async () => {
-        baseThree = await new baseScene('#canvasDom');
+        baseThree = await new BaseScene('#canvasDom');
         modelLoader = new LoadModel(baseThree)
         baseThree.loadEnvMap(cubeImg.value)
         // // 加载 gltf 模型
@@ -80,13 +80,13 @@
             model.position.set(0, 0, 0);
         })
 
-        baseThree.initRaycaster('click', (intersect) => {
-            console.log(`output->intersect`, intersect)
-            // modelLoader.loadSphere(intersect.point, true);//添加圆点
-            // clickPoints.push(intersect.point)//保存原点
-            // modelLoader.loadLine(clickPoints)//画线
-            baseThree.changeSelect(intersect)
-        });
+        // baseThree.initRaycaster('click', (intersect) => {
+        //     console.log(`output->intersect`, intersect)
+        //     // modelLoader.loadSphere(intersect.point, true);//添加圆点
+        //     // clickPoints.push(intersect.point)//保存原点
+        //     // modelLoader.loadLine(clickPoints)//画线
+        //     baseThree.changeSelect(intersect)
+        // });
 
         baseThree.initAxesHelper()
         baseThree.addStats()
